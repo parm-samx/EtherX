@@ -85,28 +85,33 @@
 <body class="dark">
   <button id="toggleTheme">🌗</button>
 
-  <h1 class="title">Ether<span class="blue">X</span></h1>
+  <h1 class="title">Ether<span class="blue">X</span></h1> 
+  <!-- (rest of your code stays the same above) -->
 
-  <button id="startBtn">Start</button>
+<button id="startBtn">Start</button>
 
-  <div class="notification">Welcome to EtherX</div>
-  <div class="notification">Glad to see you here</div>
+<!-- Notifications -->
+<div class="notification">Welcome to EtherX</div>
+<div class="notification">Glad to see you here</div>
 
-  <script>
-    // Toggle theme
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.body.classList.toggle('light');
-      document.body.classList.toggle('dark');
+<script>
+  // Toggle theme
+  document.getElementById('toggleTheme').addEventListener('click', () => {
+    document.body.classList.toggle('light');
+    document.body.classList.toggle('dark');
+  });
+
+  // Start button click redirect
+  document.getElementById('startBtn').addEventListener('click', () => {
+    window.location.href = 'home.html'; // Replace with your actual next page
+  });
+
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
     });
-
-    // Register service worker
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(reg => console.log('Service Worker registered:', reg.scope))
-          .catch(err => console.error('Service Worker registration failed:', err));
-      });
-    }
-  </script>
-</body>
-</html>
+  }
+</script>
