@@ -163,6 +163,34 @@
         .then(reg => console.log('SW registered:', reg.scope))
         .catch(err => console.error('SW failed:', err));
     }
+  <script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.getElementById('installBtn');
+    installBtn.style.display = 'block';
+
+    installBtn.addEventListener('click', () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+          deferredPrompt = null;
+        });
+      }
+    });
+  });
+
+  // Optional: hide the button by default
+  window.addEventListener('load', () => {
+    document.getElementById('installBtn').style.display = 'none';
+  });
   </script>
 </body>
 </html>
