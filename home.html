@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>EtherX</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      overscroll-behavior: none;
+      font-family: 'Segoe UI', sans-serif;
+      background: #000; color: #fff;
+      height: 100%; transition: background .3s, color .3s;
+    }
+    body.light { background: #fff; color: #000; }
+
+    /* Theme, Refresh, Install Buttons */
+    #toggleTheme, #refreshBtn, #installBtn {
+      position: absolute; top: 15px;
+      padding: 8px 12px; border: 2px solid currentColor;
+      border-radius: 8px; background: transparent;
+      cursor: pointer; font-size: 1rem;
+    }
+    #toggleTheme { right: 120px; }
+    #refreshBtn   { right: 90px; }
+    #installBtn   { right: 15px; display:none; color:#3498db; }
+
+    /* Main Menu Button */
+    #mainMenuBtn {
+      position: absolute; top: 60px; right: 15px;
+      width: 40px; height: 40px;
+      border: none; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; cursor: pointer;
+      transition: background .3s, color .3s;
+    }
+    body.light #mainMenuBtn { background: #fff; color: #000; }
+    body.dark  #mainMenuBtn { background: #000; color: #fff; }
+
+    /* Dropdown Menu */
+    .menu {
+      position: absolute; top: 110px; right: 15px;
+      display: none; flex-direction: column; gap:4px;
+      padding: 8px; border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background .3s, color .3s;
+      max-width: 160px;
+    }
+    body.light .menu { background: #fff; color: #000; }
+    body.dark  .menu { background: #000; color: #fff; }
+    .menu a {
+      display: flex; align-items: center; gap:6px;
+      padding: 6px 10px; text-decoration: none;
+      color: inherit; border-radius:4px;
+    }
+    .menu a:hover { background: rgba(255,255,255,0.1); }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Main Content */
+    .container {
+      display:flex; flex-direction:column;
+      align-items:center; padding:80px 20px 80px;
+    }
+    h1 {
+      font-size:3rem; font-weight:bold;
+      animation:pulse 2s infinite;
+    }
+    h1 span { color: #3498db; }
+    @keyframes pulse {
+      0% { transform:scale(1);opacity:.8; }
+      50%{ transform:scale(1.05);opacity:1; }
+      100%{transform:scale(1);opacity:.8;}
+    }
+    .subtitle { margin-top:8px; font-size:1rem; opacity:.9; }
+    .subsub   { margin-bottom:30px; font-size:.9rem; opacity:.7; }
+
+    .grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:15px; width:100%; max-width:500px; margin-top:30px;
+    }
+    .grid button {
+      padding:15px; font-size:.95rem; font-weight:500;
+      border:none; border-radius:8px; background:#3498db;
+      color:#fff; cursor:pointer; transition:transform .2s;
+    }
+    .grid button:hover { transform:scale(1.03); }
+
+    footer {
+      position:absolute; bottom:10px; width:100%;
+      text-align:center; font-size:.85rem; opacity:.8;
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <!-- Buttons -->
+  <button id="toggleTheme">🌓 Theme</button>
+  <button id="mainMenuBtn">⋮</button>
+
+  <!-- Dropdown Menu -->
+  <nav id="mainMenu" class="menu">
+    <a href="index.html" onclick="location.reload(true)"><span>🔄</span>Refresh</a>
+    <a href="settings.html"><span>⚙️</span>Settings</a>
+    <a href="help.html"><span>❓</span>Help</a>
+    <a href="about.html"><span>ℹ️</span>More about SamX</a>
+  </nav>
+
+  <!-- Content -->
+  <div class="container">
+    <h1>Ether<span>X</span></h1>
+    <div class="subtitle">Designed for Focus. Built for Success.</div>
+    <div class="subsub">Study mode: ON</div>
+    <div class="grid">
+      <button onclick="go('tracker.html')">Study Tracker ⏳</button>
+      <button onclick="go('todo.html')">To-Do List 🎯</button>
+      <button onclick="go('calculator.html')">Calculator ➗</button>
+      <button onclick="go('calendar.html')">Calendar 🗓️</button>
+      <button onclick="go('notes.html')">Notes 📝</button>
+      <button onclick="window.open('https://ncert.nic.in/', '_blank')">NCERT 📚</button> 
+      <button onclick="go('games.html')">Game 🎮</button>
+    </div>
+  </div>
+
+  <footer>Made with love 💙 by PARMESHWAR at SamX</footer>
+
+  <script>
+    // Theme toggle
+    document.getElementById('toggleTheme').onclick = () => {
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+    };
+
+    // Navigation helper
+    function go(u){ location.href = u; }
+
+    // Dropdown toggle
+    const btn = document.getElementById('mainMenuBtn'),
+          menu = document.getElementById('mainMenu');
+    btn.onclick = e => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display==='flex'?'none':'flex';
+    };
+    window.addEventListener('click', e=>{
+      if(!menu.contains(e.target)&&e.target!==btn){
+        menu.style.display='none';
+      }
+    });
+
+    // PWA install
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault(); deferredPrompt = e;
+      document.getElementById('installBtn').style.display = 'inline-block';
+    });
+    document.getElementById('installBtn').onclick = async () => {
+      if(deferredPrompt){ deferredPrompt.prompt(); deferredPrompt=null; this.style.display='none'; }
+    };
+
+    // Refresh
+    document.getElementById('refreshBtn').onclick = ()=>location.href='index.html';
+
+  </script>
+</body>
+</html>
