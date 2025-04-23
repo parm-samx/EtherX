@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EtherX - Home</title>
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      padding: 20px;
+      position: relative;
+    }
+    body.light { background: #fff; color: #000; }
+
+    #toggleTheme {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      padding: 10px;
+      font-size: 1.2rem;
+      border: 2px solid currentColor;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .title {
+      font-size: 4rem;
+      font-weight: 700;
+      margin: 40px 0 20px;
+      animation: pulse 2s infinite;
+    }
+    .title span { color: #3498db; }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    .btn {
+      margin: 10px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #fff;
+      cursor: pointer;
+      width: 200px;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    body.light .btn { background: #ddd; color: #000; }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body class="dark">
+  <button id="toggleTheme">🌓</button>
+
+  <h1 class="title">Ether<span>X</span></h1>
+
+  <button class="btn" onclick="location.href='tracker.html'">Study Tracker</button>
+  <button class="btn" onclick="location.href='todo.html'">To-Do List</button>
+  <button class="btn" onclick="location.href='calculator.html'">Calculator</button>
+  <button class="btn" onclick="location.href='converter.html'">Unit Converter</button>
+  <button class="btn" onclick="location.href='calendar.html'">Calendar</button>
+  <button class="btn" onclick="location.href='notes.html'">Notes</button>
+  <button class="btn" onclick="location.href='ncert.html'">NCERT Books</button>
+
+  <footer>Made with love ❤️ by <strong>PARMESHWAR</strong> at SamX</footer>
+
+  <script>
+    document.getElementById('toggleTheme').onclick = () => {
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+    };
+  </script>
+</body>
+</html>
