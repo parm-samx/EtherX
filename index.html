@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EtherX</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    *{box-sizing:border-box;}
+
+    body{
+      margin:0;
+      font-family:'Segoe UI',sans-serif;
+      background:#000;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      min-height:100vh;
+      transition:background .3s,color .3s;
+      position:relative;
+    }
+    body.light{background:#fff;color:#000;}
+
+    /* dark‑light toggle */
+    #toggleTheme{
+      position:absolute;top:15px;right:15px;
+      padding:10px;font-size:1.2rem;
+      border:2px solid currentColor;border-radius:8px;
+      background:transparent;cursor:pointer;
+    }
+
+    /* title */
+    .title{
+      font-size:5rem;font-weight:700;
+      margin-bottom:40px;
+      animation:pulse 2s infinite;
+    }
+    .title span{color:#3498db;}
+
+    @keyframes pulse{
+      0%{transform:scale(1);opacity:.8;}
+      50%{transform:scale(1.05);opacity:1;}
+      100%{transform:scale(1);opacity:.8;}
+    }
+
+    /* buttons */
+    button{
+      margin:10px;padding:12px 24px;font-size:1rem;
+      border:none;border-radius:8px;cursor:pointer;
+      background:#444;color:#fff;transition:background .3s;
+    }
+    body.light button{background:#ddd;color:#000;}
+
+    /* notification */
+    .notification{
+      margin-top:30px;padding:10px 20px;
+      border:2px solid currentColor;border-radius:6px;
+      background:transparent;font-weight:500;text-align:center;
+      width:max-content;
+    }
+
+    /* footer */
+    footer{
+      position:absolute;bottom:10px;left:0;right:0;
+      text-align:center;font-size:.85rem;user-select:none;
+    }
+  </style>
+</head>
+<body class="dark">
+  <!-- Toggle -->
+  <button id="toggleTheme">🌓</button>
+
+  <!-- Title -->
+  <h1 class="title">Ether<span>X</span></h1>
+
+  <!-- Start -->
+  <button id="startBtn">Start</button>
+
+  <!-- Single Notification -->
+  <div class="notification">Welcome to EtherX</div>
+
+  <!-- Footer -->
+  <footer>Made with love ❤️ by <strong>PARMESHWAR</strong> at SamX</footer>
+
+  <script>
+    /* theme toggle */
+    document.getElementById('toggleTheme').onclick=()=>{
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+    };
+
+    /* navigation */
+    document.getElementById('startBtn').onclick=()=>window.location.href='home.html';
+
+    /* service‑worker (for PWA/offline support) */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(function(error) {
+          console.error('Service Worker registration failed:', error);
+        });
+    }
+  </script>
+</body>
+</html>
