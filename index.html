@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>EtherX</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#000000" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+      position: relative;
+    }
+
+    body.light {
+      background: #fff;
+      color: #000;
+    }
+
+    .top-buttons {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .top-buttons button {
+      padding: 8px 12px;
+      font-size: 0.95rem;
+      border: 2px solid currentColor;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .top-buttons button .icon-blue {
+      color: #3498db;
+    }
+
+    .notification {
+      position: absolute;
+      top: 60px;
+      padding: 10px 20px;
+      border: 2px solid currentColor;
+      border-radius: 6px;
+      background: transparent;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 5rem;
+      font-weight: 700;
+      margin-top: 130px;
+      animation: pulse 2s infinite;
+    }
+
+    .title span {
+      color: #3498db;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      opacity: 0.8;
+      margin-bottom: 30px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
+    }
+
+    #startBtn {
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #3498db;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      text-align: center;
+      width: 100%;
+      font-size: 0.85rem;
+      user-select: none;
+    }
+  </style>
+</head>
+<body class="dark">
+  <!-- Theme, Refresh and Install Buttons -->
+  <div class="top-buttons">
+    <button id="toggleTheme">🌓 Theme</button>
+    <button id="refreshBtn">🔄 Refresh</button>
+    <button id="installBtn"><span class="icon-blue">⬇️</span> Install EtherX</button>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notification">Welcome to EtherX</div>
+
+  <!-- Title and Subtitle -->
+  <h1 class="title">Ether<span>X</span></h1>
+  <div class="subtitle">built for success</div>
+
+  <!-- Start Button -->
+  <button id="startBtn">Start</button>
+
+  <!-- Footer -->
+  <footer>Made with love ❤️ by <strong>PARMESHWAR</strong> at SamX</footer>
+
+  <script>
+    // Theme toggle
+    document.getElementById('toggleTheme').onclick = () => {
+      document.body.classList.toggle('light');
+      document.body.classList.toggle('dark');
+    };
+
+    // Start button navigation
+    document.getElementById('startBtn').onclick = () => {
+      window.location.href = 'home.html';
+    };
+
+    // Refresh button
+    document.getElementById('refreshBtn').onclick = () => {
+      location.href = 'index.html';
+    };
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js')
+        .then(reg => console.log('Service Worker registered:', reg.scope))
+        .catch(err => console.error('Service Worker registration failed:', err));
+    }
+
+    // PWA Install
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+    installBtn.style.display = 'none';
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'inline-flex';
+
+      installBtn.addEventListener('click', () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+          if (choice.outcome === 'accepted') {
+            console.log('User accepted the install prompt');
+            installBtn.style.display = 'none';
+          } else {
+            console.log('User dismissed the install prompt');
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
