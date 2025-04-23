@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>Home - EtherX</title>
+  <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="manifest.json">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { overscroll-behavior: none; font-family: 'Segoe UI', sans-serif; background: #000; color: #fff; height: 100%; transition: background .3s,color .3s; }
+    body.light { background: #fff; color: #000; }
+    #toggleTheme { position:absolute; top:15px; right:60px; padding:10px; font-size:1.2rem; border:2px solid currentColor; border-radius:8px; background:transparent; cursor:pointer; }
+    #mainMenuBtn { position:absolute; top:15px; right:15px; padding:10px; font-size:1.2rem; border:2px solid currentColor; border-radius:8px; background:transparent; cursor:pointer; }
+    .menu { position:absolute; top:55px; right:15px; background: currentColor; color: currentColor; border-radius:8px; display:none; flex-direction:column; padding:10px; animation:slideDown .3s ease; }
+    .menu a { text-decoration:none; color:inherit; padding:6px 10px; font-size:.95rem; display:flex; align-items:center; gap:6px; background: inherit; }
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    .container{display:flex;flex-direction:column;align-items:center;padding:60px 20px 80px;}
+    h1{font-size:3rem;font-weight:bold;margin-bottom:8px;animation:pulse 2s infinite;}
+    h1 span{color:#3498db;}
+    .subtitle{font-size:1rem;margin-bottom:5px;opacity:.9;}
+    .subsub{font-size:.9rem;opacity:.7;margin-bottom:30px;}
+    @keyframes pulse{0%{transform:scale(1);opacity:.8}50%{transform:scale(1.05);opacity:1}100%{transform:scale(1);opacity:.8}}
+    .notification{background:#3498db;color:#fff;padding:10px;text-align:center;font-size:.95rem;}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;width:100%;max-width:500px;margin-top:30px;}
+    .grid button{padding:15px;border:none;border-radius:8px;font-size:.95rem;font-weight:500;background:#3498db;color:#fff;cursor:pointer;transition:background .3s;}
+    footer{text-align:center;position:fixed;bottom:10px;width:100%;font-size:.85rem;color:inherit;}
+    #installBtn{margin-top:20px;padding:10px 16px;border-radius:6px;background:#3498db;color:#fff;border:none;font-size:1rem;cursor:pointer;}
+  </style>
+</head>
+<body class="dark">
+  <div class="notification">Welcome to EtherX – Stay Focused!</div>
+  <button id="toggleTheme">🌓</button>
+  <button id="mainMenuBtn">⋮</button>
+  <div id="mainMenu" class="menu">
+    <a href="index.html" onclick="location.reload(true)"><span>🔄</span>Refresh</a>
+    <a href="settings.html"><span>⚙️</span>Settings</a>
+    <a href="help.html"><span>❓</span>Help</a>
+    <a href="about.html"><span>ℹ️</span>More about SamX</a>
+  </div>
+  <div class="container">
+    <h1>Ether<span>X</span></h1>
+    <div class="subtitle">Designed for Focus. Built for Success.</div>
+    <div class="subsub">Study mode: ON</div>
+    <div class="grid">
+      <button onclick="go('tracker.html')">Study Tracker ⏳</button>
+      <button onclick="go('todo.html')">To-Do list🎯</button>
+      <button onclick="go('calculator.html')">Calculator ➗</button>
+      <button onclick="go('calendar.html')">Calendar 🗓️</button>
+      <button onclick="go('notes.html')">Notes 📝</button>
+      <button onclick="window.open('https://ncert.nic.in/textbook.php', '_blank')">NCERT 📚</button>
+      <button onclick="go('games.html')">Games 🎮</button>
+    </div>
+    <button id="installBtn" style="display:none">⬇️ Install EtherX</button>
+  </div>
+  <footer>Made with love 💙 by PARMESHWAR at SamX</footer>
+  <script>
+    document.getElementById('toggleTheme').onclick=()=>{document.body.classList.toggle('light');document.body.classList.toggle('dark');updateTheme();};
+    function updateTheme(){const m=document.getElementById('mainMenuBtn');const t=document.getElementById('toggleTheme');const light=document.body.classList.contains('light');m.style.color=light?'#000':'#fff';t.style.color=light?'#000':'#fff';}
+    updateTheme();
+    function go(u){location.href=u;}
+    const mb=document.getElementById('mainMenuBtn'),mn=document.getElementById('mainMenu');let o=false;mb.onclick=e=>{o=!o;mn.style.display=o?'flex':'none';};window.onclick=e=>{if(!mn.contains(e.target)&&e.target!==mb){mn.style.display='none';o=false;}}
+    let dp;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('installBtn').style.display='inline-block';});document.getElementById('installBtn').onclick=async()=>{dp&&(dp.prompt(),dp=null,document.getElementById('installBtn').style.display='none');};
+  </script>
+</body>
+</html>
