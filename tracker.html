@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Study Tracker - EtherX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin:0; padding:0;
+      font-family:'Roboto',sans-serif;
+      background:#fff; color:#000;
+      overscroll-behavior:none;
+      display:flex; flex-direction:column; align-items:center;
+    }
+    body.dark {
+      background:#0f0f0f; color:#f5f5f5;
+    }
+    header {
+      width:100%; display:flex; justify-content:space-between; align-items:center;
+      padding:1rem;
+    }
+    header button {
+      background:transparent; border:none; color:inherit;
+      font-size:1.2rem; cursor:pointer;
+    }
+    #backBtn, #toggleTheme, #historyBtn {
+      position:fixed; top:15px; padding:8px;
+      border:2px solid currentColor; border-radius:8px;
+      background:transparent; z-index:10;
+    }
+    #backBtn { left:15px; }
+    #toggleTheme { right:60px; }
+    #historyBtn { right:15px; }
+    #totalTimer {
+      margin-top:3rem; padding:.5rem 1rem;
+      border:1px solid currentColor; border-radius:8px;
+      font-size:2rem; text-align:center; width:80%; max-width:400px;
+    }
+    #subjects {
+      display:flex; flex-direction:column; gap:1rem;
+      width:90%; max-width:400px; margin-top:1rem;
+    }
+    .subject {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:1rem; border:1px solid currentColor; border-radius:8px;
+    }
+    .subject-name { color:#ffc107; font-size:1.25rem; font-weight:bold; }
+    .subject-time { font-size:1.5rem; margin-right:1rem; }
+    .controls { display:flex; gap:1rem; }
+    .controls .material-icons { font-size:1.8rem; cursor:pointer; }
+    .controls .play { color:#4caf50; }
+    .controls .edit { color:#2196f3; }
+    .controls .delete { color:#f44336; }
+    .button-container { margin:1rem 0; }
+    #add-subject {
+      padding:.5rem 1rem; background:#ffc107; border:none;
+      color:#000; border-radius:8px; cursor:pointer;
+    }
+    #chart-container {
+      width:80%; max-width:300px; margin:1rem 0 2rem;
+    }
+    #historyPanel {
+      position:fixed; inset:0; background:rgba(0,0,0,0.8);
+      display:none; justify-content:center; align-items:center; color:#fff;
+    }
+    .history-content {
+      background:#fff; color:#000; padding:2rem; border-radius:8px;
+      max-height:80%; overflow-y:auto; width:90%; max-width:400px;
+    }
+    .history-entry { margin-bottom:1rem; }
+  </style>
+</head>
+<body class="light">
+  <button id="backBtn" onclick="location.href='home.html'">⬅</button>
+  <button id="toggleTheme" onclick="document.body.classList.toggle('dark')">
+    <span class="material-icons">brightness_6</span>
+  </button>
+  <button id="historyBtn" onclick="openHistory()">
+    <span class="material-icons">history</span>
+  </button>
+
+  <div id="totalTimer">00:00:00</div>
+  <div id="subjects"></div>
+
+  <div class="button-container">
+    <button id="add-subject" onclick="addSubject()">+ Subject</button>
+  </div>
+
+  <div id="chart-container"><canvas id="studyChart"></canvas></div>
+
+  <div id="historyPanel">
+    <div class="history-content">
+      <h3>Study History</h3>
+      <div id="historyList"></div>
+      <button onclick="closeHistory()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let subjects=JSON.parse(localStorage.getItem('subjects'))||["Maths","Chemistry","Physics"];
+    let totalTime=JSON.parse(localStorage.getItem('totalTime'))||Object.fromEntries(subjects.map(s=>[s,0]));
+    let history=JSON.parse(localStorage.getItem('studyHistory'))||{};
+    let intervals={}, activeSubject=null;
+
+    function fmt(s){
+      const h=String(Math.floor(s/3600)).padStart(2,'0'),
+            m=String(Math.floor((s%3600)/60)).padStart(2,'0'),
+            sec=String(s%60).padStart(2,'0');
+      return `${h}:${m}:${sec}`;
+    }
+
+    function render(){
+      const c=document.getElementById('subjects'); c.innerHTML='';
+      subjects.forEach(sub=>{
+        const d=document.createElement('div'); d.className='subject';
+        const isRunning = !!intervals[sub];
+        d.innerHTML=`
+          <div class="subject-name">${sub}</div>
+          <div class="subject-time" id="time-${sub}">${fmt(totalTime[sub])}</div>
+          <div class="controls">
+            <span class="material-icons play" id="play-${sub}">${isRunning?'pause':'play_arrow'}</span>
+            <span class="material-icons edit" id="edit-${sub}">edit</span>
+            <span class="material-icons delete" id="del-${sub}">delete</span>
+          </div>`;
+        c.append(d);
+        d.querySelector(`#play-${sub}`).onclick=()=>toggle(sub);
+        d.querySelector(`#edit-${sub}`).onclick=()=>manual(sub);
+        d.querySelector(`#del-${sub}`).onclick=()=>remove(sub);
+      });
+      update();
+    }
+
+    function toggle(sub){
+      if(intervals[sub]){
+        clearInterval(intervals[sub]); delete intervals[sub];
+        activeSubject=null;
+      } else {
+        if(activeSubject && intervals[activeSubject]){
+          clearInterval(intervals[activeSubject]);
+          delete intervals[activeSubject];
+        }
+        activeSubject=sub;
+        intervals[sub]=setInterval(()=>{
+          totalTime[sub]++; save(); update();
+        },1000);
+      }
+      render();
+    }
+
+    function manual(sub){
+      const m=parseInt(prompt(`Add minutes to ${sub}:`),10);
+      if(!isNaN(m)){ totalTime[sub]+=m*60; save(); update(); }
+    }
+
+    function remove(sub){
+      if(confirm(`Delete ${sub}?`)){
+        if(intervals[sub]) clearInterval(intervals[sub]);
+        delete intervals[sub];
+        subjects=subjects.filter(s=>s!==sub); delete totalTime[sub];
+        save(); render();
+      }
+    }
+
+    function update(){
+      document.getElementById('totalTimer').textContent=fmt(subjects.reduce((a,s)=>a+totalTime[s],0));
+      subjects.forEach(s=>document.getElementById(`time-${s}`).textContent=fmt(totalTime[s]));
+      chart.data.labels=subjects; chart.data.datasets[0].data=subjects.map(s=>totalTime[s]); chart.update();
+    }
+
+    function save(){
+      localStorage.setItem('subjects',JSON.stringify(subjects));
+      localStorage.setItem('totalTime',JSON.stringify(totalTime));
+      localStorage.setItem('studyHistory',JSON.stringify(history));
+    }
+
+    function addSubject(){
+      const n=prompt('Subject:');
+      if(n&&!subjects.includes(n)){ subjects.push(n); totalTime[n]=0; save(); render(); }
+    }
+
+    const ctx=document.getElementById('studyChart');
+    const chart=new Chart(ctx,{type:'pie',data:{labels:subjects,datasets:[{data:subjects.map(s=>totalTime[s])}]}});
+
+    function openHistory(){
+      const hl=document.getElementById('historyList'); hl.innerHTML='';
+      Object.entries(history).sort().forEach(([d,dat])=>{
+        const e=document.createElement('div'); e.className='history-entry';
+        e.innerHTML=`<strong>${d}</strong>: `+subjects.map(s=>`${s} ${fmt(dat[s]||0)}`).join(', ');
+        hl.append(e);
+      });
+      document.getElementById('historyPanel').style.display='flex';
+    }
+    function closeHistory(){ document.getElementById('historyPanel').style.display='none'; }
+
+    (function mid(){
+      const now=new Date(), ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+      setTimeout(()=>{
+        history[now.toISOString().slice(0,10)]=totalTime; save();
+        subjects.forEach(s=>totalTime[s]=0); save(); render(); mid();
+      },ms);
+    })();
+
+    render();
+
+    document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&['+','-','=','r','R'].includes(e.key)) e.preventDefault(); });
+    document.addEventListener('wheel',e=>{ if(e.ctrlKey) e.preventDefault(); },{passive:false});
+  </script>
+</body>
+</html>
