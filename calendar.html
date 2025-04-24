@@ -2,236 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Calendar 2025–2026</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About SamX</title>
   <style>
-    :root {
-      --bg-dark: #000;
-      --text-dark: #fff;
-      --bg-light: #fff;
-      --text-light: #000;
-      --primary: #2196f3;
-    }
     body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Arial', sans-serif;
       margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-dark);
-      transition: background .3s, color .3s;
-      animation: fadeIn .5s ease-out;
-      overflow-x: hidden;
+      padding: 0;
     }
-    body.light {
-      background: var(--bg-light);
-      color: var(--text-light);
+    .container {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 20px;
+      text-align: center;
     }
-    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-
-    header {
+    h1, h2 {
+      margin-bottom: 1rem;
+    }
+    .highlight {
+      background-color: #FFD700;
+      color: #000;
+      font-weight: bold;
+      padding: 0 4px;
+      border-radius: 2px;
+    }
+    /* Chart navigation */
+    .month-nav {
       display: flex;
-      justify-content: flex-end;
-      padding: 1rem;
+      justify-content: center;
+      align-items: center;
+      margin: 30px 0;
     }
-    header button {
-      background: transparent;
-      border: none;
-      color: inherit;
+    .month-nav button {
+      background: #222;
+      border: 2px solid #555;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      margin: 0 20px;
+      border-radius: 50%;
       font-size: 1.2rem;
       cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
     }
-
-    .year {
-      padding: 1rem;
-      animation: slideIn .5s ease-out;
+    .month-nav button:hover {
+      background: #333;
+      border-color: #888;
     }
-    @keyframes slideIn { from { transform: translateY(10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
-
-    h2 {
-      text-align: center;
-      margin: 0.5rem 0;
+    .month-label {
+      font-size: 1.2rem;
+      font-weight: bold;
     }
-    .months {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-    }
-    .month {
-      background: rgba(255,255,255,0.05);
-      border-radius: 8px;
-      width: 200px;
-      padding: 0.5rem;
-    }
-    .month h3 {
-      text-align: center;
-      margin: 0.5rem 0;
-    }
-    table {
+    /* Chart placeholder */
+    #monthly-chart {
       width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      width: 14.28%;
-      text-align: center;
-      padding: 4px;
-    }
-    th {
-      background: rgba(0,0,0,0.2);
-      font-weight: normal;
-    }
-    td {
-      cursor: pointer;
-      transition: background .2s;
-    }
-    td:hover {
-      background: rgba(255,255,255,0.1);
-    }
-    .sunday {
-      color: red;
-    }
-    .event {
-      background: var(--primary);
-      color: #000;
-      border-radius: 4px;
-    }
-
-    #popup {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      background: inherit;
-      border: 2px solid currentColor;
-      padding: 1rem;
-      border-radius: 6px;
-      display: none;
-      z-index: 1000;
-    }
-    #popup input {
-      width: 200px;
-      padding: .5rem;
-      border: 1px solid currentColor;
-      border-radius: 4px;
-      background: transparent;
-      color: inherit;
-      margin-bottom: .5rem;
-    }
-    #popup button {
-      padding: .4rem .8rem;
-      border: none;
-      border-radius: 4px;
-      background: var(--primary);
-      color: #000;
-      cursor: pointer;
-      margin-right: .5rem;
+      height: 300px;
+      background: #111;
+      border: 1px solid #444;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #777;
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
-  <header>
-    <button onclick="toggleTheme()">🌓</button>
-  </header>
+  <div class="container">
+    <h1>About <span class="highlight">SamX</span></h1>
+    <p>Welcome to the official page of <span class="highlight">SamX</span>, a startup dedicated to creating tools and apps that help people succeed in their daily tasks and studies. One of our key projects is <span class="highlight">EtherX</span>, a productivity and study tool designed to make learning more efficient and organized.</p>
 
-  <div id="popup">
-    <input id="eventText" placeholder="Add event" />
-    <div style="text-align: right;">
-      <button onclick="saveEvent()">Save</button>
-      <button onclick="closePopup()">Cancel</button>
+    <h2>Our Mission</h2>
+    <p>At <span class="highlight">SamX</span>, our mission is to develop innovative solutions that streamline productivity, learning, and personal development. <span class="highlight">EtherX</span> is just the beginning of our journey to create tools that help you stay focused, organized, and successful in your goals.</p>
+
+    <!-- Month Navigation + Chart -->
+    <div class="month-nav">
+      <button id="prev-month">&#8592;</button>
+      <div class="month-label" id="month-label">April 2025</div>
+      <button id="next-month">&#8594;</button>
     </div>
+    <div id="monthly-chart">[Your April 2025 Chart]</div>
   </div>
 
-  <div id="calContainer"></div>
-
   <script>
-    // Festival Dates
-    const festivals = {
-      '2025-01-01': "New Year's Day",
-      '2025-01-26': 'Republic Day',
-      '2025-03-14': 'Holi',
-      '2025-08-15': 'Independence Day',
-      '2025-10-02': 'Gandhi Jayanti',
-      '2025-10-22': 'Diwali',
-      '2026-01-01': "New Year's Day",
-      '2026-01-26': 'Republic Day',
-      '2026-03-03': 'Holi',
-      '2026-08-15': 'Independence Day',
-      '2026-10-02': 'Gandhi Jayanti',
-      '2026-11-01': 'Diwali'
+    // JavaScript to handle month switching
+    const monthNames = [
+      'January', 'February', 'March', 'April',
+      'May', 'June', 'July', 'August',
+      'September', 'October', 'November', 'December'
+    ];
+    let current = new Date(); // starts with today’s month
+    const label = document.getElementById('month-label');
+    const chart = document.getElementById('monthly-chart');
+    document.getElementById('prev-month').onclick = () => {
+      current.setMonth(current.getMonth() - 1);
+      updateView();
     };
-
-    let selectedKey, selectedCell;
-
-    function buildYear(year) {
-      const container = document.createElement('div');
-      container.className = 'year';
-      container.innerHTML = `<h2>${year}</h2><div class="months"></div>`;
-      const monthsDiv = container.querySelector('.months');
-      for (let m = 0; m < 12; m++) {
-        monthsDiv.appendChild(buildMonth(year, m));
-      }
-      return container;
+    document.getElementById('next-month').onclick = () => {
+      current.setMonth(current.getMonth() + 1);
+      updateView();
+    };
+    function updateView() {
+      const m = current.getMonth();
+      const y = current.getFullYear();
+      label.textContent = `${monthNames[m]} ${y}`;
+      // TODO: replace the innerHTML with your chart rendering for month m,y
+      chart.textContent = `[Your ${monthNames[m]} ${y} Chart]`;
     }
-
-    function buildMonth(year, month) {
-      const firstDay = new Date(year, month, 1).getDay();
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-
-      const monthDiv = document.createElement('div');
-      monthDiv.className = 'month';
-      monthDiv.innerHTML = `<h3>${monthNames[month]}</h3><table><tr>${
-        ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(d => `<th${d==='Sun'?' class="sunday"':''}>${d}</th>`).join('')
-      }</tr></table>`;
-
-      const table = monthDiv.querySelector('table');
-      let row = table.insertRow();
-      for (let i = 0; i < firstDay; i++) row.insertCell();
-
-      for (let d = 1; d <= daysInMonth; d++) {
-        if (row.cells.length === 7) row = table.insertRow();
-        const cell = row.insertCell();
-        cell.textContent = d;
-        const key = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-        if (festivals[key] || localStorage.getItem(key)) cell.classList.add('event');
-        if (cell.cellIndex === 0) cell.classList.add('sunday');
-        cell.onclick = () => openPopup(cell, key);
-      }
-
-      return monthDiv;
-    }
-
-    function openPopup(cell, key) {
-      selectedCell = cell;
-      selectedKey = key;
-      document.getElementById('eventText').value = localStorage.getItem(key) || '';
-      document.getElementById('popup').style.display = 'block';
-    }
-
-    function closePopup() {
-      document.getElementById('popup').style.display = 'none';
-    }
-
-    function saveEvent() {
-      const value = document.getElementById('eventText').value.trim();
-      if (value) {
-        localStorage.setItem(selectedKey, value);
-        selectedCell.classList.add('event');
-      } else {
-        localStorage.removeItem(selectedKey);
-        selectedCell.classList.remove('event');
-      }
-      closePopup();
-    }
-
-    function toggleTheme() {
-      document.body.classList.toggle('light');
-    }
-
-    // Build calendars for 2025 & 2026
-    const calendarContainer = document.getElementById('calContainer');
-    [2025, 2026].forEach(y => {
-      calendarContainer.appendChild(buildYear(y));
-    });
+    // initialize
+    updateView();
   </script>
 </body>
 </html>
