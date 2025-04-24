@@ -12,20 +12,21 @@
       font-family: 'Roboto', sans-serif;
       background: #fff; color: #000;
       max-width: 600px; margin: auto;
+      line-height: 1.6;
     }
     header {
-      display: flex; align-items: center; margin-bottom: 1rem;
+      display: flex; align-items: center; margin-bottom: 1.5rem;
     }
     header button {
-      background: transparent; border: none; font-size: 1.5rem; cursor: pointer;
+      background: none; border: none; font-size: 1.5rem; cursor: pointer;
     }
-    h1 { font-size: 2rem; margin: 1rem 0; }
-    h2 { font-size: 1.25rem; margin-top: 1.5rem; }
-    p { line-height: 1.5; margin: 0.5rem 0; }
-    ul { margin: 0.5rem 0 1rem 1.5rem; }
+    h1 { font-size: 2rem; margin: 1.5rem 0; }
+    h2 { font-size: 1.25rem; margin: 1.5rem 0 1rem; }
+    p { margin: 0.75rem 0; }
+    ul, ol { margin: 0.75rem 0 1.5rem 1.5rem; }
     .section { margin-bottom: 2rem; }
     .highlight { background: #fffae6; padding: 0.25rem 0.5rem; border-radius: 4px; }
-    footer { font-size: 0.85rem; color: #666; text-align: center; margin-top: 2rem; }
+    footer { font-size: 0.85rem; color: #666; text-align: center; margin-top: 3rem; }
   </style>
 </head>
 <body>
@@ -37,39 +38,47 @@
 
   <div class="section" id="contact">
     <h2>Contact</h2>
-    <p>If you have any questions or need assistance, please email us at:</p>
+    <p>Need help or have questions? Email us at:</p>
     <p><strong>support@example.com</strong></p>
+    <p>We usually reply within one day.</p>
   </div>
 
   <div class="section" id="troubleshooting">
     <h2>Troubleshooting Tips</h2>
     <ul>
-      <li><strong>PWA install didn’t show:</strong> Make sure you visit via HTTPS and check your browser’s install prompts.</li>
-      <li><strong>Dark mode not sticking:</strong> Clear your cache or reload the page after toggling the theme.</li>
-      <li><strong>Calculator buttons unresponsive:</strong> Ensure JavaScript is enabled in your browser settings.</li>
+      <li><strong>Can’t install the app?</strong> Make sure you are on a secure (HTTPS) page. Look for “Install EtherX” in your browser menu.</li>
+      <li><strong>Dark mode not staying on?</strong> Try refreshing the page after you switch themes.</li>
+      <li><strong>Buttons not working?</strong> Check that you haven’t disabled scripts in your browser settings.</li>
+      <li><strong>Data not saving?</strong> Make sure your browser allows storage for this site.</li>
     </ul>
   </div>
 
-  <div class="section" id="accessibility">
-    <h2>Accessibility Guide</h2>
-    <ul>
-      <li><strong>Increase font size:</strong> Use your browser’s zoom controls (Ctrl + / Ctrl –) or adjust in Settings.</li>
-      <li><strong>High-contrast mode:</strong> Toggle Dark Mode for a darker background and lighter text.</li>
-      <li><strong>Screen reader:</strong> EtherX includes ARIA labels—ensure your screen reader is in focus mode to read buttons and inputs.</li>
-    </ul>
+  <div class="section" id="pwa">
+    <h2>Use EtherX Offline</h2>
+    <p>After you install EtherX, you can use it without internet. You install it once, and it works like a normal app on your device.</p>
+    <p>To install:</p>
+    <ol>
+      <li>Open EtherX in your browser.</li>
+      <li>Tap the browser menu and pick “Install EtherX.”</li>
+      <li>Accept to add it to your home screen or desktop.</li>
+    </ol>
   </div>
 
   <div class="section" id="clear-data">
-    <h2>Clear App Data</h2>
-    <p>If you’d like to <span class="highlight">reset EtherX</span> and remove all your study history, subjects, and settings, follow these steps:</p>
+    <h2>Clear All Data</h2>
+    <p>If you want to start fresh and erase all your history and settings, follow these steps:</p>
     <ol>
-      <li>Open your browser’s <strong>Settings</strong> menu.</li>
-      <li>Go to <strong>Site Settings</strong> (or <em>Privacy & Security</em>).</li>
-      <li>Find <strong>Storage</strong> or <strong>Local Storage</strong> for this site.</li>
-      <li>Select <strong>Clear Data</strong> or <strong>Delete Site Data</strong>.</li>
-      <li>Reload EtherX—your data will be reset and the app will start fresh.</li>
+      <li>Open your browser’s settings.</li>
+      <li>Find storage or data for this site.</li>
+      <li>Choose to clear or delete that data.</li>
+      <li>Reload EtherX—the app will be like new.</li>
     </ol>
-    <p>Once cleared, you can re-add subjects, start new timers, and rebuild your history from zero.</p>
+    <p><em>Warning:</em> This can’t be undone.</p>
+  </div>
+
+  <div class="section" id="security">
+    <h2>Your Data Stays on Your Device</h2>
+    <p>All your study times, events, and notes stay on your device. We do not collect or share your data with anyone.</p>
   </div>
 
   <footer>
