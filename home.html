@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>EtherX</title>
+  <style>
+    :root {
+      --bg-light: #fff;
+      --text-light: #000;
+      --bg-dark: #000;
+      --text-dark: #fff;
+      --accent: #3498db;
+    }
+    body {
+      margin: 0; padding: 0;
+      background: var(--bg-light);
+      color: var(--text-light);
+      font-family: 'Segoe UI', sans-serif;
+      transition: background .3s, color .3s;
+    }
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    header {
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 1rem;
+    }
+    header button {
+      background: transparent; border: none;
+      font-size: 1.5rem; margin-left: .5rem;
+      cursor: pointer; color: inherit;
+    }
+
+    /* Main menu */
+    #menu {
+      position: absolute; top: 3.5rem; right: 1rem;
+      background: var(--bg-light); color: var(--text-light);
+      border: 2px solid currentColor; border-radius: 8px;
+      display: none; flex-direction: column;
+      animation: fadeIn .2s ease-out;
+      padding: .5rem 1rem;
+    }
+    body.dark #menu {
+      background: var(--bg-dark); color: var(--text-dark);
+    }
+    #menu a {
+      text-decoration: none; color: inherit;
+      padding: .3rem 0; display: flex; align-items: center;
+      font-size: .95rem;
+    }
+    #menu a span {
+      margin-right: .5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      text-align: center;
+      margin-top: 6rem; /* push down */
+    }
+    .title {
+      font-size: 4rem; margin-bottom: 2rem;
+      animation: pulse 2s infinite;
+    }
+    .title span { color: var(--accent); }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: .8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: .8; }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      max-width: 600px; margin: 0 auto;
+    }
+    .grid button {
+      padding: 1rem; font-size: 1rem;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      cursor: pointer; transition: background .3s;
+    }
+    .grid button:hover {
+      background: #217dbb;
+    }
+
+    footer {
+      text-align: center; padding: 2rem 0;
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body class="light">
+  <header>
+    <button id="toggle">🌓</button>
+    <button id="menuBtn">⋮</button>
+    <nav id="menu">
+      <a href="#" onclick="location.reload(true)">
+        <span>🔄</span> Refresh
+      </a>
+      <a href="settings.html">
+        <span>⚙️</span> Settings
+      </a>
+      <a href="help.html">
+        <span>❓</span> Help
+      </a>
+      <a href="about.html">
+        <span>ℹ️</span> More about SamX
+      </a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="title">Ether<span>X</span></h1>
+
+    <div class="grid">
+      <button onclick="location.href='tracker.html'">Study Tracker ⏳</button>
+      <button onclick="location.href='todo.html'">To‑Do List 🎯</button>
+      <button onclick="location.href='calculator.html'">Calculator ➗</button>
+      <button onclick="location.href='calendar.html'">Calendar 🗓️</button>
+      <button onclick="location.href='ncert.html'">NCERT 📚</button>
+      <button onclick="location.href='game.html'">Game 🎮</button>
+    </div>
+  </div>
+
+  <footer>
+    Made with love 💙 by <strong>PARMESHWAR</strong> at SamX
+  </footer>
+
+  <script>
+    // Theme toggle
+    document.getElementById('toggle').onclick = () => {
+      document.body.classList.toggle('dark');
+    };
+
+    // Main menu toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const menu   = document.getElementById('menu');
+    menuBtn.onclick = () => {
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    };
+    // Close menu clicking outside
+    window.addEventListener('click', e => {
+      if (!menu.contains(e.target) && e.target !== menuBtn) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
