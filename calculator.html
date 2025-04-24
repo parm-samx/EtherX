@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Calculator – EtherX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --bg-light: #fff; --text-light: #000;
+      --bg-dark: #0f0f14; --text-dark: #333;
+      --accent: #4e8cff; --accent-dark: #0066ff;
+    }
+    html, body {
+      margin:0; padding:0;
+      overscroll-behavior:none;
+      background: var(--bg-light); color: var(--text-light);
+      font-family: 'Roboto', sans-serif;
+      overflow:hidden;
+      transition: background .3s, color .3s;
+    }
+    body.dark {
+      background: var(--bg-dark); color: var(--text-dark);
+    }
+    header {
+      position: fixed; top:0; left:0; right:0; height:3rem;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:0 1rem; background:inherit; z-index:10;
+    }
+    header button {
+      background:transparent; border:none; color:inherit;
+      font-size:1.5rem; cursor:pointer;
+    }
+    .calculator {
+      margin:4rem auto 0; width:100%; max-width:400px;
+    }
+    .display {
+      margin:0 1rem; padding:1rem;
+      background:rgba(0,0,0,0.05); border-radius:8px;
+      font-size:2rem; text-align:right; font-weight:700;
+      overflow:hidden;
+    }
+    body.dark .display {
+      background:rgba(255,255,255,0.05);
+    }
+    .keys {
+      display:grid; gap:.5rem; padding:1rem;
+      grid-template-columns:repeat(6,1fr);
+    }
+    .key {
+      width:56px; height:56px;
+      background:var(--bg-light); color:var(--text-light);
+      border:2px solid currentColor; border-radius:8px;
+      font-size:1.1rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; transition:transform .1s;
+    }
+    .key:active { transform:scale(0.95); }
+    body.dark .key {
+      background:var(--bg-dark); color:var(--text-dark);
+    }
+    .operator { color:var(--accent); }
+    .equal {
+      grid-column:span 2;
+      background:var(--accent); color:#fff;
+    }
+    body.dark .equal {
+      background:var(--accent-dark);
+    }
+    .wide { grid-column:span 2; }
+    #funcPanel {
+      display:none; margin:0 1rem; padding:1rem;
+      grid-template-columns:repeat(4,1fr); gap:.5rem;
+      background:var(--bg-light); border-top:2px solid currentColor;
+    }
+    body.dark #funcPanel {
+      background:var(--bg-dark);
+    }
+    #funcPanel .key {
+      width:50px; height:50px; border-radius:8px;
+      font-size:1rem; font-weight:700;
+    }
+    #historyPanel {
+      position:fixed; inset:0; background:rgba(0,0,0,0.8);
+      display:none; justify-content:center; align-items:center;
+      animation:fadeIn .3s; z-index:20;
+    }
+    .history-content {
+      background:var(--bg-light); color:var(--text-light);
+      padding:2rem; border-radius:8px;
+      max-height:80vh; overflow-y:auto;
+      width:90%; max-width:400px;
+      animation:slideIn .3s;
+    }
+    .history-entry {
+      display:flex; justify-content:space-between;
+      padding:.5rem 0; border-bottom:1px solid #ccc;
+    }
+    .history-entry:last-child { border-bottom:none; }
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes slideIn { from{transform:translateY(-10px);opacity:0} to{transform:translateY(0);opacity:1} }
+  </style>
+</head>
+<body class="light">
+  <header>
+    <!-- Official Home Icon -->
+    <button onclick="location.href='home.html'">
+      <span class="material-icons">home</span>
+    </button>
+    <!-- Theme Toggle -->
+    <button id="toggleTheme">
+      <span class="material-icons">light_mode</span>
+    </button>
+    <!-- History -->
+    <button onclick="toggleHistory()">
+      <span class="material-icons">history</span>
+    </button>
+  </header>
+
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="keys">
+      <!-- Row 1 -->
+      <button class="key wide">←</button>
+      <button class="key">C</button>
+      <button class="key">sin</button>
+      <button class="key">cos</button>
+      <button class="key">tan</button>
+      <button class="key operator">÷</button>
+
+      <!-- Row 2 -->
+      <button class="key">xʸ</button>
+      <button class="key">π</button>
+      <button class="key">eˣ</button>
+      <button class="key operator">%</button>
+      <button class="key operator">×</button>
+      <button class="key operator">√</button>
+
+      <!-- Row 3 -->
+      <button class="key">7</button>
+      <button class="key">8</button>
+      <button class="key">9</button>
+      <button class="key operator">−</button>
+      <button class="key operator">1/x</button>
+      <button class="key">M+</button>
+
+      <!-- Row 4 -->
+      <button class="key">4</button>
+      <button class="key">5</button>
+      <button class="key">6</button>
+      <button class="key operator">+</button>
+      <button class="key equal">=</button>
+      <button class="key">MC</button>
+
+      <!-- Row 5 -->
+      <button class="key">1</button>
+      <button class="key">2</button>
+      <button class="key">3</button>
+      <button class="key">0</button>
+      <button class="key">.</button>
+      <button class="key">MR</button>
+    </div>
+
+    <div id="funcPanel" class="keys">
+      <button class="key operator">log</button>
+      <button class="key operator">ln</button>
+      <button class="key operator">x!</button>
+      <button class="key operator">^</button>
+    </div>
+  </div>
+
+  <div id="historyPanel">
+    <div class="history-content">
+      <h3>History</h3>
+      <div id="historyList"></div>
+      <button onclick="toggleHistory()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    let expr = '';
+    const disp = document.getElementById('display');
+
+    // Delegate all key clicks
+    document.querySelector('.keys').addEventListener('click', e => {
+      const btn = e.target.closest('.key');
+      if (!btn) return;
+      const v = btn.textContent.trim();
+
+      if (v === '←') return backspace();
+      if (v === 'C') return clearDisplay();
+      if (v === 'sin' || v==='cos' || v==='tan' || v==='π' || v==='xʸ' || v==='eˣ' || v==='%' || v==='√' || v==='1/x' || v==='log' || v==='ln' || v==='x!' || v==='^') {
+        // map to JS
+        let map = { 'π':'Math.PI','eˣ':'Math.E**','xʸ':'**','√':'Math.sqrt(','1/x':'1/','x!':'factorial(' };
+        expr += map[v] || v+'(';
+        disp.textContent = expr;
+        return;
+      }
+      if (v === '=') return calculate();
+      if (v === 'M+' || v==='MC' || v==='MR') return; // skip memory
+      // number or operator + - * / .
+      expr += v;
+      disp.textContent = expr;
+    });
+
+    function backspace() {
+      expr = expr.slice(0,-1);
+      disp.textContent = expr || '0';
+    }
+    function clearDisplay() {
+      expr = ''; disp.textContent='0';
+    }
+    function factorial(n){ return n<=1?1:n*factorial(n-1);}
+    function calculate(){
+      try{
+        expr = expr.replace(/factorial/g,'factorial');
+        let res = eval(expr);
+        expr = ''+res;
+        disp.textContent = expr;
+        saveHistory(expr);
+      } catch {
+        disp.textContent='Error'; expr='';
+      }
+    }
+    function toggleHistory(){
+      let h=document.getElementById('historyPanel');
+      h.style.display = h.style.display==='flex'?'none':'flex';
+      if(h.style.display==='flex') renderHistory();
+    }
+    function saveHistory(v){
+      let h=JSON.parse(localStorage.getItem('calcHistory')||'[]');
+      h.unshift(v);
+      localStorage.setItem('calcHistory',JSON.stringify(h.slice(0,50)));
+    }
+    function renderHistory(){
+      const hl=document.getElementById('historyList'); hl.innerHTML='';
+      JSON.parse(localStorage.getItem('calcHistory')||'[]').forEach((e,i)=>{
+        let d=document.createElement('div');
+        d.className='history-entry';
+        d.innerHTML=`<span>${e}</span><button onclick="deleteHistory(${i})">🗑️</button>`;
+        hl.append(d);
+      });
+    }
+    function deleteHistory(i){
+      let h=JSON.parse(localStorage.getItem('calcHistory')||'[]');
+      h.splice(i,1);
+      localStorage.setItem('calcHistory',JSON.stringify(h));
+      renderHistory();
+    }
+    // theme toggle
+    document.getElementById('toggleTheme').onclick = ()=>{
+      document.body.classList.toggle('dark');
+    };
+    // disable zoom/refresh
+    document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&['+','-','=','r','R'].includes(e.key)) e.preventDefault();});
+    document.addEventListener('wheel',e=>{ if(e.ctrlKey) e.preventDefault();},{passive:false});
+  </script>
+</body>
+</html>
