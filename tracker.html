@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>Study Tracker - EtherX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: #0f0f0f;
+      color: #f5f5f5;
+      overscroll-behavior: none;
+    }
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem;
+    }
+    header button {
+      background: transparent; border: none;
+      color: inherit; font-size: 1.2rem; cursor: pointer;
+      margin-left: .5rem;
+    }
+    .total-timer {
+      text-align: center; font-size: 3rem; margin-top: 1rem;
+    }
+    #subjects {
+      display: flex; overflow-x: auto; gap: 1rem;
+      padding: 1rem;
+    }
+    .subject {
+      background-color: #1e1e1e; padding: 1rem;
+      border-radius: .75rem; min-width: 200px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .subject-name { font-size: 1.25rem; }
+    .subject-time { font-size: 1.5rem; margin: .5rem 0; }
+    .controls {
+      display: flex; gap: 1rem;
+    }
+    .material-icons {
+      cursor: pointer; color: #2196f3; font-size: 2rem;
+    }
+    .button-container {
+      text-align: center; margin: 1rem 0;
+    }
+    #add-subject {
+      padding: .5rem 1rem; background-color: #2196f3;
+      color: #000; border: none; border-radius: .5rem;
+      cursor: pointer; font-weight: bold;
+    }
+    #chart-container {
+      max-width: 250px; margin: 2rem auto;
+    }
+    #toggleTheme, #historyBtn, #backBtn {
+      position: fixed; top: 15px; padding: 8px;
+      border: 2px solid currentColor; border-radius: 8px;
+      background: transparent; cursor: pointer; font-size: 1rem;
+      z-index: 10;
+    }
+    #toggleTheme { right: 60px; }
+    #historyBtn { right: 15px; }
+    #backBtn { left: 15px; }
+
+  </style>
+</head>
+<body>
+  <button id="backBtn" onclick="location.href='index.html'">⬅ Home</button>
+  <button id="toggleTheme">🌓</button>
+  <button id="historyBtn">📖</button>
+
+  <div class="total-timer" id="totalTimer">00:00:00</div>
+  <div id="subjects"></div>
+
+  <div class="button-container">
+    <button id="add-subject">+ Subject</button>
+  </div>
+
+  <div id="chart-container">
+    <canvas id="studyChart"></canvas>
+  </div>
+
+  <div id="historyPanel" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+        background:rgba(0,0,0,0.8); color:#fff; display:flex; align-items:center; justify-content:center;">
+    <div style="background:#1e1e1e; padding:2rem; border-radius:8px; max-height:80%; overflow-y:auto;">
+      <h3>Study History</h3>
+      <div id="historyList"></div>
+      <button onclick="closeHistory()" style="margin-top:1rem;">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // Data
+    let subjects = JSON.parse(localStorage.getItem('subjects')) || ["Maths","Chemistry","Physics"];
+    let totalTime = JSON.parse(localStorage.getItem('totalTime')) || Object.fromEntries(subjects.map(s=>[s,0]));
+    let history = JSON.parse(localStorage.getItem('studyHistory')) || {};
+    let intervals = {};
+
+    // Theme toggle
+    document.getElementById('toggleTheme').onclick = () => {
+      document.body.classList.toggle('light');
+    };
+
+    // Render
+    function renderSubjects(){
+      const c = document.getElementById('subjects');
+      c.innerHTML = '';
+      subjects.forEach(sub => {
+        const d = document.createElement('div'); d.className='subject';
+        d.innerHTML = `
+          <div class="subject-name">${sub}</div>
+          <div class="subject-time" id="time-${sub}">${fmt(totalTime[sub])}</div>
+          <div class="controls">
+            <span class="material-icons" id="play-${sub}">play_arrow</span>
+            <span class="material-icons" id="edit-${sub}">edit</span>
+            <span class="material-icons" id="del-${sub}">delete</span>
+          </div>`;
+        c.append(d);
+        document.getElementById(`play-${sub}`).onclick = ()=>toggle(sub,true);
+        document.getElementById(`edit-${sub}`).onclick = ()=>manual(sub);
+        document.getElementById(`del-${sub}`).onclick = ()=>remove(sub);
+      });
+      update();
+    }
+
+    function fmt(s){
+      const h=String(Math.floor(s/3600)).padStart(2,'0'),
+            m=String(Math.floor((s%3600)/60)).padStart(2,'0'),
+            sec=String(s%60).padStart(2,'0');
+      return `${h}:${m}:${sec}`;
+    }
+
+    function toggle(sub,start){
+      if(start){
+        if(!intervals[sub]) intervals[sub] = setInterval(()=>{
+          totalTime[sub]++; save(); update();
+        },1000);
+      } else {
+        clearInterval(intervals[sub]); delete intervals[sub];
+      }
+    }
+    function manual(sub){
+      const m = parseInt(prompt(`Add minutes to ${sub}:`),10);
+      if(!isNaN(m)){ totalTime[sub]+=m*60; save(); update(); }
+    }
+    function remove(sub){
+      if(confirm(`Delete ${sub}?`)){
+        clearInterval(intervals[sub]); delete intervals[sub];
+        subjects = subjects.filter(s=>s!==sub); delete totalTime[sub];
+        save(); renderSubjects();
+      }
+    }
+
+    function update(){
+      subjects.forEach(s=>document.getElementById(`time-${s}`).textContent = fmt(totalTime[s]));
+      const tot = subjects.reduce((a,s)=>a+totalTime[s],0);
+      document.getElementById('totalTimer').textContent = fmt(tot);
+      chart.data.labels = subjects;
+      chart.data.datasets[0].data = subjects.map(s=>totalTime[s]);
+      chart.update();
+    }
+
+    function save(){
+      localStorage.setItem('subjects', JSON.stringify(subjects));
+      localStorage.setItem('totalTime', JSON.stringify(totalTime));
+      localStorage.setItem('studyHistory', JSON.stringify(history));
+    }
+
+    document.getElementById('add-subject').onclick = () => {
+      const n = prompt('Subject name:');
+      if(n && !subjects.includes(n)){
+        subjects.push(n); totalTime[n]=0; save(); renderSubjects();
+      }
+    };
+
+    // Chart
+    const ctx = document.getElementById('studyChart');
+    const chart = new Chart(ctx,{
+      type:'pie',
+      data:{labels:subjects,datasets:[{data:subjects.map(s=>totalTime[s])}]}
+    });
+
+    // History
+    document.getElementById('historyBtn').onclick = () => {
+      const hl = document.getElementById('historyList');
+      hl.innerHTML = '';
+      Object.entries(history).sort().forEach(([d,dat])=>{
+        const e = document.createElement('div'); e.innerHTML = `<strong>${d}</strong>: `
+          + subjects.map(s=>`${s} ${fmt(dat[s]||0)}`).join(', ');
+        hl.append(e);
+      });
+      document.getElementById('historyPanel').style.display='flex';
+    };
+    function closeHistory(){
+      document.getElementById('historyPanel').style.display='none';
+    }
+
+    // Midnight reset
+    (function mid(){
+      const now=new Date(), ms=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1)-now;
+      setTimeout(()=>{
+        history[now.toISOString().slice(0,10)] = totalTime;
+        save();
+        subjects.forEach(s=>totalTime[s]=0);
+        save(); renderSubjects();
+        mid();
+      }, ms);
+    })();
+
+    renderSubjects();
+
+    // Disable zoom/refresh
+    document.addEventListener('keydown',e=>{
+      if((e.ctrlKey||e.metaKey)&&['+','-','=','r','R'].includes(e.key))e.preventDefault();
+    });
+    document.addEventListener('wheel',e=>{ if(e.ctrlKey)e.preventDefault(); },{passive:false});
+
+  </script>
+</body>
+</html>
