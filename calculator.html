@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Disable zooming and pull-to-refresh -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="msapplication-tap-highlight" content="no"/>
+  <title>EtherX Calculator</title>
+  <style>
+    /* --- Disable touch gestures that refresh or zoom --- */
+    html, body {
+      touch-action: manipulation;
+      overscroll-behavior: contain;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      min-height: 100vh; background: var(--bg); color: var(--fg);
+      font-family: sans-serif; transition: background 0.3s, color 0.3s;
+    }
+
+    /* --- Theme variables --- */
+    :root {
+      --bg: #fff; --fg: #000;
+      --btn-bg: #fff; --btn-border: #333; --btn-hover: #f0f0f0;
+    }
+    .dark {
+      --bg: #121212; --fg: #e0e0e0;
+      --btn-bg: #1e1e1e; --btn-border: #555; --btn-hover: #333;
+    }
+
+    /* --- Top bar --- */
+    .top-bar {
+      width: 100%; max-width: 360px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: var(--btn-bg);
+      border-bottom: 1px solid var(--btn-border);
+    }
+    .top-bar img.logo { height: 32px; }
+    .top-bar button {
+      background: none; border: none; font-size: 1rem;
+      color: var(--fg); cursor: pointer; padding: 0.25rem 0.5rem;
+    }
+
+    /* --- Calculator container --- */
+    .calculator { width: 360px; padding: 1rem; }
+
+    .display {
+      background: #f1f1f1; border-radius: 0.5rem;
+      padding: 1rem; font-size: 2rem; text-align: right;
+      margin-bottom: 1rem; user-select: none;
+    }
+
+    .button-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+    }
+    .button-grid button {
+      padding: 0.75rem; font-size: 1.1rem;
+      border: 2px solid var(--btn-border); border-radius: 0.5rem;
+      background: var(--btn-bg); cursor: pointer;
+      transition: background 0.2s;
+    }
+    .button-grid button:hover { background: var(--btn-hover); }
+    .button-grid button[data-action] {
+      border-color: #4a90e2; color: #4a90e2;
+    }
+    .button-grid button[data-action="equals"] {
+      background: #4a90e2; color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <img class="logo" src="path/to/your-logo.png" alt="Logo"/>
+    <button id="homeBtn">Home</button>
+    <button id="historyBtn">History</button>
+    <button id="themeToggle">🌙/☀️</button>
+  </div>
+
+  <!-- Calculator -->
+  <div class="calculator">
+    <div class="display" id="display">0</div>
+    <div class="button-grid">
+      <!-- Row 1 -->
+      <button data-action="backspace">←</button>
+      <button data-action="clear">C</button>
+      <button data-action="sin">sin</button>
+      <button data-action="cos">cos</button>
+      <button data-action="tan">tan</button>
+      <!-- Row 2 -->
+      <button data-action="power">xʸ</button>
+      <button data-action="pi">π</button>
+      <button data-action="exp">eˣ</button>
+      <button data-action="percent">%</button>
+      <button data-action="divide">÷</button>
+      <!-- Row 3 -->
+      <button>7</button>
+      <button>8</button>
+      <button>9</button>
+      <button data-action="multiply">×</button>
+      <button data-action="sqrt">√</button>
+      <!-- Row 4 -->
+      <button>4</button>
+      <button>5</button>
+      <button>6</button>
+      <button data-action="subtract">−</button>
+      <button data-action="reciprocal">1/x</button>
+      <!-- Row 5 -->
+      <button>1</button>
+      <button>2</button>
+      <button>3</button>
+      <button data-action="equals">=</button>
+      <button data-action="add">+</button>
+      <!-- Row 6 -->
+      <button>0</button>
+      <button>e</button>
+      <button>.</button>
+      <button data-action="m-plus">M+</button>
+      <button data-action="m-clear">MC</button>
+      <button data-action="m-recall">MR</button>
+    </div>
+  </div>
+
+  <script>
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('.button-grid button');
+    const themeToggle = document.getElementById('themeToggle');
+    const homeBtn = document.getElementById('homeBtn');
+    const historyBtn = document.getElementById('historyBtn');
+
+    // Disable pull-to-refresh entirely
+    document.body.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+    // Theme toggle
+    themeToggle.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+
+    // Home and History button handlers
+    homeBtn.addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+    historyBtn.addEventListener('click', () => {
+      window.location.href = 'history.html';
+    });
+
+    // Initialize from localStorage
+    display.textContent = localStorage.getItem('calc-display') || '0';
+    let memory = parseFloat(localStorage.getItem('calc-memory')) || 0;
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const action = btn.dataset.action;
+        const val = btn.textContent;
+
+        switch(action) {
+          case 'clear':
+            display.textContent = '0'; break;
+          case 'backspace':
+            display.textContent = display.textContent.slice(0, -1) || '0'; break;
+          case 'equals':
+            try { display.textContent = eval(display.textContent); }
+            catch { display.textContent = 'Error'; }
+            break;
+          case 'sin': case 'cos': case 'tan':
+            display.textContent = Math[action](parseFloat(display.textContent)); break;
+          case 'pi':
+            display.textContent += Math.PI.toFixed(8); break;
+          case 'exp':
+            display.textContent += Math.E.toFixed(8); break;
+          case 'power':
+            display.textContent += '**'; break;
+          case 'sqrt':
+            display.textContent = Math.sqrt(parseFloat(display.textContent)); break;
+          case 'reciprocal':
+            display.textContent = 1/parseFloat(display.textContent); break;
+          case 'percent':
+            display.textContent = parseFloat(display.textContent)/100; break;
+          case 'm-plus':
+            memory += parseFloat(display.textContent);
+            localStorage.setItem('calc-memory', memory); break;
+          case 'm-clear':
+            memory = 0; localStorage.setItem('calc-memory', memory); break;
+          case 'm-recall':
+            display.textContent = memory; break;
+          default:
+            display.textContent = display.textContent==='0'? val : display.textContent+val;
+        }
+        localStorage.setItem('calc-display', display.textContent);
+      });
+    });
+  </script>
+</body>
+</html>
