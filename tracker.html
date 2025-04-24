@@ -70,7 +70,7 @@
   <header>
     <button onclick="location.href='home.html'">← Home</button>
     <button id="toggleTheme">🌓</button>
-    <button id="historyBtn">📖 History</button>
+    <button id="historyBtn">🗂️</button>
   </header>
 
   <div class="total-timer" id="totalTimer">00:00:00</div>
@@ -79,7 +79,7 @@
 
   <div class="button-container">
     <button id="add-subject">+ Subject</button>
-    <button id="historyBtnMobile">📖 History</button>
+    
   </div>
 
   <div id="chart-container">
@@ -132,9 +132,9 @@
           <div class="subject-time-controls">
             <div id="time-${sub}">${format(totalTime[sub])}</div>
             <div>
-              <span class="material-icons" id="play-${sub}">play_arrow</span>
-              <span class="material-icons" id="pause-${sub}">pause</span>
-              <span class="material-icons" id="del-${sub}">delete</span>
+              <span class="material-icons" id="play-${sub}">▶️</span>
+              <span class="material-icons" id="pause-${sub}">⏸️</span>
+              <span class="material-icons" id="del-${sub}">🗑️</span>
             </div>
           </div>`;
         c.append(d);
