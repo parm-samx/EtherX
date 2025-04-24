@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Help – EtherX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0; padding: 2rem;
+      font-family: 'Roboto', sans-serif;
+      background: #fff; color: #000;
+      max-width: 600px; margin: auto;
+    }
+    header {
+      display: flex; align-items: center; margin-bottom: 1rem;
+    }
+    header button {
+      background: transparent; border: none; font-size: 1.5rem; cursor: pointer;
+    }
+    h1 { font-size: 2rem; margin: 1rem 0; }
+    h2 { font-size: 1.25rem; margin-top: 1.5rem; }
+    p { line-height: 1.5; margin: 0.5rem 0; }
+    ul { margin: 0.5rem 0 1rem 1.5rem; }
+    .section { margin-bottom: 2rem; }
+    .highlight { background: #fffae6; padding: 0.25rem 0.5rem; border-radius: 4px; }
+    footer { font-size: 0.85rem; color: #666; text-align: center; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="location.href='home.html'">← Home</button>
+  </header>
+
+  <h1>Help & Support</h1>
+
+  <div class="section" id="contact">
+    <h2>Contact</h2>
+    <p>If you have any questions or need assistance, please email us at:</p>
+    <p><strong>support@example.com</strong></p>
+  </div>
+
+  <div class="section" id="troubleshooting">
+    <h2>Troubleshooting Tips</h2>
+    <ul>
+      <li><strong>PWA install didn’t show:</strong> Make sure you visit via HTTPS and check your browser’s install prompts.</li>
+      <li><strong>Dark mode not sticking:</strong> Clear your cache or reload the page after toggling the theme.</li>
+      <li><strong>Calculator buttons unresponsive:</strong> Ensure JavaScript is enabled in your browser settings.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="accessibility">
+    <h2>Accessibility Guide</h2>
+    <ul>
+      <li><strong>Increase font size:</strong> Use your browser’s zoom controls (Ctrl + / Ctrl –) or adjust in Settings.</li>
+      <li><strong>High-contrast mode:</strong> Toggle Dark Mode for a darker background and lighter text.</li>
+      <li><strong>Screen reader:</strong> EtherX includes ARIA labels—ensure your screen reader is in focus mode to read buttons and inputs.</li>
+    </ul>
+  </div>
+
+  <div class="section" id="clear-data">
+    <h2>Clear App Data</h2>
+    <p>If you’d like to <span class="highlight">reset EtherX</span> and remove all your study history, subjects, and settings, follow these steps:</p>
+    <ol>
+      <li>Open your browser’s <strong>Settings</strong> menu.</li>
+      <li>Go to <strong>Site Settings</strong> (or <em>Privacy & Security</em>).</li>
+      <li>Find <strong>Storage</strong> or <strong>Local Storage</strong> for this site.</li>
+      <li>Select <strong>Clear Data</strong> or <strong>Delete Site Data</strong>.</li>
+      <li>Reload EtherX—your data will be reset and the app will start fresh.</li>
+    </ol>
+    <p>Once cleared, you can re-add subjects, start new timers, and rebuild your history from zero.</p>
+  </div>
+
+  <footer>
+    © 2025 SamX. Made with ♥ by Parmeshwar.
+  </footer>
+</body>
+</html>
