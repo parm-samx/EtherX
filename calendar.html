@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Calendar - EtherX</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #000;
+      --text-dark: #fff;
+      --bg-light: #fff;
+      --text-light: #000;
+      --primary: #2196f3;
+    }
+    body {
+      margin: 0; font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-dark); color: var(--text-dark);
+      overflow-x: hidden; animation: fadeIn .5s;
+      transition: background .3s, color .3s;
+    }
+    body.light {
+      background: var(--bg-light); color: var(--text-light);
+    }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem;
+    }
+    header button {
+      background: transparent; border: none; color: inherit;
+      font-size: 1.5rem; cursor: pointer;
+    }
+
+    .month-nav {
+      display: flex; justify-content: center; align-items: center;
+      gap: 1rem; margin-top: 1rem;
+    }
+    .nav-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 2px solid currentColor; display: flex;
+      align-items: center; justify-content: center; cursor: pointer;
+    }
+    .month-title {
+      font-size: 1.5rem; font-weight: bold;
+    }
+
+    .grid {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 4px; padding: 1rem;
+    }
+    .grid div {
+      padding: 8px 0; text-align: center; cursor: pointer;
+      position: relative;
+    }
+    .sunday { color: red; }
+    .event::after {
+      content: ''; display: block; width: 6px; height: 6px;
+      background: var(--primary); border-radius: 50%;
+      margin: 4px auto 0;
+    }
+    .today {
+      border: 2px solid var(--primary); border-radius: 50%;
+    }
+
+    #popup {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: inherit; border: 2px solid currentColor;
+      padding: 1rem; border-radius: 6px; display: none; z-index: 1000;
+    }
+    #popup input {
+      width: 200px; padding: .5rem; margin-bottom: .5rem;
+      border: 1px solid currentColor; border-radius: 4px;
+      background: transparent; color: inherit;
+    }
+    #popup button {
+      padding: .4rem .8rem; border: none; border-radius: 4px;
+      background: var(--primary); color: #000; cursor: pointer;
+      margin-right: .5rem;
+    }
+
+    .events-list {
+      max-width: 600px; margin: 1rem auto; padding: 1rem;
+      background: rgba(255,255,255,0.05); border-radius: 8px;
+    }
+    .events-list h3 { margin-bottom: .5rem; }
+    .item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: .5rem 0; border-bottom: 1px solid #555;
+    }
+    .item:last-child { border-bottom: none; }
+    .info { display: flex; flex-direction: column; }
+    .info .date { font-size: .9rem; }
+    .info .time { font-size: .75rem; opacity: .6; }
+    .complete .info .date, .complete .info .time { text-decoration: line-through; opacity: .6; }
+    .actions button {
+      background: transparent; border: none; color: inherit;
+      font-size: 1.2rem; cursor: pointer; margin-left: .5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <button onclick="location.href='home.html'">
+      <span class="material-icons">home</span>
+    </button>
+    <button onclick="toggleTheme()">
+      <span class="material-icons">brightness_6</span>
+    </button>
+  </header>
+
+  <div class="month-nav">
+    <div class="nav-btn" onclick="changeMonth(-1)">◀</div>
+    <div class="month-title" id="monthTitle"></div>
+    <div class="nav-btn" onclick="changeMonth(1)">▶</div>
+  </div>
+
+  <div class="grid" id="calendarGrid"></div>
+
+  <div id="popup">
+    <input id="eventText" placeholder="Add event" />
+    <div style="text-align:right">
+      <button onclick="saveEvent()">Save</button>
+      <button onclick="closePopup()">Cancel</button>
+    </div>
+  </div>
+
+  <div class="events-list" id="eventsList">
+    <h3>All Events</h3>
+  </div>
+
+  <script>
+    const festivals = {
+      '2025-01-26':'Republic Day','2025-03-14':'Holi','2025-08-15':'Independence Day',
+      '2025-10-02':'Gandhi Jayanti','2025-10-22':'Diwali',
+      '2026-01-26':'Republic Day','2026-03-03':'Holi','2026-08-15':'Independence Day',
+      '2026-10-02':'Gandhi Jayanti','2026-11-01':'Diwali'
+    };
+    let current=new Date(), selKey, selCell;
+
+    function renderCalendar(){
+      const year=current.getFullYear(), month=current.getMonth();
+      document.getElementById('monthTitle').textContent =
+        current.toLocaleString('default',{month:'short',year:'numeric'}).toUpperCase();
+
+      const grid=document.getElementById('calendarGrid'); grid.innerHTML='';
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{
+        const hd=document.createElement('div'); hd.textContent=d;
+        if(d==='Sun')hd.classList.add('sunday'); grid.append(hd);
+      });
+
+      const firstDay=new Date(year,month,1).getDay();
+      for(let i=0;i<firstDay;i++) grid.append(document.createElement('div'));
+
+      const days=new Date(year,month+1,0).getDate();
+      const today=new Date(), isThisMonth = today.getFullYear()===year && today.getMonth()===month;
+
+      for(let d=1;d<=days;d++){
+        const cell=document.createElement('div'); cell.textContent=d;
+        const key=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        if(festivals[key]||localStorage.getItem(key))cell.classList.add('event');
+        if(grid.children.length%7===0)cell.classList.add('sunday');
+        if(isThisMonth&&d===today.getDate())cell.classList.add('today');
+        cell.onclick=()=>openPopup(cell,key); grid.append(cell);
+      }
+      renderEventsList();
+    }
+
+    function changeMonth(delta){ current.setMonth(current.getMonth()+delta); renderCalendar(); }
+    function goToday(){ current=new Date(); renderCalendar(); }
+
+    function toggleTheme(){ document.body.classList.toggle('light'); }
+
+    function openPopup(cell,key){
+      selCell=cell; selKey=key;
+      document.getElementById('eventText').value=localStorage.getItem(key)||'';
+      document.getElementById('popup').style.display='block';
+    }
+    function closePopup(){ document.getElementById('popup').style.display='none'; }
+    function saveEvent(){
+      const v=document.getElementById('eventText').value.trim();
+      if(v) localStorage.setItem(selKey,v), selCell.classList.add('event');
+      else localStorage.removeItem(selKey), selCell.classList.remove('event');
+      closePopup(); renderEventsList();
+    }
+
+    function renderEventsList(){
+      const el=document.getElementById('eventsList');
+      el.querySelectorAll('.item')?.forEach(n=>n.remove());
+      const keys=Object.keys(localStorage).filter(k=>/^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
+      keys.forEach(k=>{
+        const text=localStorage.getItem(k);
+        const div=document.createElement('div'); div.className='item';
+        const info=document.createElement('div'); info.className='info';
+        const date=new Date(k).toLocaleDateString();
+        const time=new Date(k).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',hour12:true});
+        info.innerHTML=`<span class="date">${date}</span><span class="time">${time}</span>`;
+        if(localStorage.getItem(k+'_done')==='true') div.classList.add('complete');
+        const actions=document.createElement('div'); actions.className='actions';
+        const tick=document.createElement('button'); tick.textContent='✔️';
+        tick.onclick=()=>{
+          const done=localStorage.getItem(k+'_done')==='true';
+          localStorage.setItem(k+'_done',done?'false':'true');
+          renderCalendar(); renderEventsList();
+        };
+        const delbtn=document.createElement('button'); delbtn.textContent='🗑️';
+        delbtn.onclick=()=>{
+          localStorage.removeItem(k); localStorage.removeItem(k+'_done');
+          renderCalendar(); renderEventsList();
+        };
+        actions.append(tick,delbtn);
+        div.append(info,actions); el.append(div);
+      });
+    }
+
+    renderCalendar();
+  </script>
+</body>
+</html>
