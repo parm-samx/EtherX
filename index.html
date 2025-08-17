@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EtherX - Index</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f9f9f9; /* permanent light theme */
+      color: #222;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Loader container */
+    .loader-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* EtherX Logo */
+    .logo {
+      font-size: 3rem;
+      font-weight: bold;
+      margin-right: 20px;
+      animation: zoomInOut 3s ease-in-out infinite;
+    }
+
+    @keyframes zoomInOut {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.1);
+      }
+    }
+
+    /* Book images */
+    .book {
+      width: 120px;
+      height: auto;
+      position: absolute;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out, transform 0.8s ease-in-out;
+    }
+
+    .book.closed {
+      opacity: 1;
+      animation: dropDown 1.2s ease forwards;
+    }
+
+    .book.open {
+      transform: translateX(150px);
+      opacity: 0;
+    }
+
+    .book.open.active {
+      opacity: 1;
+      transform: translateX(150px);
+    }
+
+    /* Drop animation for closed book */
+    @keyframes dropDown {
+      0% {
+        transform: translateY(-200px) rotate(-20deg);
+      }
+      70% {
+        transform: translateY(20px) rotate(10deg);
+      }
+      100% {
+        transform: translateY(0) rotate(0);
+      }
+    }
+
+    /* Start Button */
+    .start-btn {
+      margin-top: 220px;
+      padding: 12px 28px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: white;
+      background: #007BFF;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .start-btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loader-container">
+    <div class="logo">EtherX</div>
+    <img src="closed-book.png" alt="Closed Book" class="book closed" id="closedBook">
+    <img src="open-book.png" alt="Open Book" class="book open" id="openBook">
+  </div>
+
+  <button class="start-btn">Start</button>
+
+  <script>
+    const closedBook = document.getElementById("closedBook");
+    const openBook = document.getElementById("openBook");
+
+    // After closed book animation, swap with open book
+    closedBook.addEventListener("animationend", () => {
+      closedBook.style.opacity = "0"; // disappear closed book
+      setTimeout(() => {
+        openBook.classList.add("active"); // show open book beside logo
+      }, 300);
+    });
+  </script>
+
+</body>
+</html>
