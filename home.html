@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>EtherX</title>
+  <style>
+    :root {
+      --bg-light: #fff;
+      --text-light: #000;
+      --bg-dark: #000;
+      --text-dark: #fff;
+      --accent: #3498db;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      background: var(--bg-light);
+      color: var(--text-light);
+      font-family: 'Segoe UI', sans-serif;
+      overscroll-behavior: none;
+      transition: background .3s, color .3s;
+      height: 100%;
+    }
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+
+    /* Header */
+    header {
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 1rem;
+    }
+    header button {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-size: 1.2rem;
+      margin-left: .5rem;
+      border-radius: 50%;
+      cursor: pointer;
+      width: 2.5rem; height: 2.5rem;
+    }
+
+    /* Dropdown Menu */
+    #menu {
+      position: absolute; top: 4rem; right: 1rem;
+      background: var(--bg-light);
+      color: var(--text-light);
+      border: 2px solid currentColor; border-radius: 8px;
+      display: none; flex-direction: column;
+      animation: fadeIn .2s ease-out;
+      padding: .5rem 1rem;
+      z-index: 100;
+    }
+    body.dark #menu {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    #menu a {
+      text-decoration: none; color: inherit;
+      padding: .3rem 0; display: flex; align-items: center;
+      font-size: .95rem;
+    }
+    #menu a span {
+      margin-right: .5rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Main Container */
+    .container {
+      text-align: center;
+      margin-top: 6rem;
+      padding-bottom: 4rem;
+    }
+    .title {
+      font-size: 4rem; margin-bottom: 2rem;
+      animation: pulse 2s infinite;
+    }
+    .title span { color: var(--accent); }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: .8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: .8; }
+    }
+
+    /* Grid Buttons */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      max-width: 600px; margin: 0 auto;
+    }
+    .grid button {
+      padding: 1rem; font-size: 1rem;
+      background: var(--accent); color: #fff;
+      border: none; border-radius: 8px;
+      cursor: pointer; transition: background .3s, transform .2s;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: slideUp 0.6s ease-out forwards;
+    }
+    .grid button:hover {
+      background: #217dbb;
+      transform: scale(1.05);
+    }
+    .grid button:nth-child(1) { animation-delay: 0.3s; }
+    .grid button:nth-child(2) { animation-delay: 0.5s; }
+    .grid button:nth-child(3) { animation-delay: 0.7s; }
+    .grid button:nth-child(4) { animation-delay: 0.9s; }
+    .grid button:nth-child(5) { animation-delay: 1.1s; }
+    .grid button:nth-child(6) { animation-delay: 1.3s; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer */
+    footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      text-align: center; padding: 1rem 0;
+      background: inherit;
+      font-size: .85rem;
+    }
+  </style>
+</head>
+<body class="light">
+  <header>
+    <button id="toggle">🌓</button>
+    <button id="menuBtn">⋮</button>
+    <nav id="menu">
+      <a href="#" onclick="location.reload(true)">
+        <span>🔄</span> Refresh
+      </a>
+      <a href="settings.html">
+        <span>⚙️</span> Settings
+      </a>
+      <a href="help.html">
+        <span>❓</span> Help
+      </a>
+      <a href="about.html">
+        <span>ℹ️</span> More about SamX
+      </a>
+      <a href="privacy.html">
+        <span>🔒</span> Privacy & Policy
+      </a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="title">Ether<span>X</span></h1>
+    <div class="grid">
+      <button onclick="location.href='tracker.html'">Study Tracker ⏳</button>
+      <button onclick="location.href='todo.html'">To-Do List 🎯</button>
+      <button onclick="location.href='calculator.html'">Calculator ➗</button>
+      <button onclick="location.href='calendar.html'">Calendar 🗓️</button>
+      <button onclick="window.open('https://ncert.nic.in/textbook.php', '_blank')">NCERT</button>
+      <button onclick="location.href='game.html'">Game 🎮</button>
+    </div>
+  </div>
+
+  <footer>
+    Made with love 💙 by <strong>PARMESHWAR</strong> at SamX
+  </footer>
+
+  <script>
+    // Dark mode toggle
+    document.getElementById('toggle').onclick = () => {
+      document.body.classList.toggle('dark');
+    };
+    // Menu toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const menu   = document.getElementById('menu');
+    menuBtn.onclick = () => {
+      menu.style.display = menu.style.display === 'flex' ? 'none' : 'flex';
+    };
+    window.addEventListener('click', e => {
+      if (!menu.contains(e.target) && e.target !== menuBtn) {
+        menu.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>
