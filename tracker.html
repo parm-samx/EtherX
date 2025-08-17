@@ -1,0 +1,306 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Study Tracker - EtherX (Fixed)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { margin:0; padding-top:60px; font-family:'Roboto',sans-serif; background:#fff; color:#000; overscroll-behavior:none; display:flex; flex-direction:column; align-items:center; }
+    body.dark { background:#0f0f0f; color:#f5f5f5; }
+    header { position:fixed; top:0; left:0; right:0; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 1rem; background:inherit; z-index:20; }
+    header button { background:transparent; border:none; color:inherit; font-size:1.5rem; cursor:pointer; }
+    #backBtn { order:1 }
+    #toggleTheme { order:2; }
+    #historyBtn { order:3; }
+    #totalTimer { margin-top:20px; padding:.5rem 1rem; border:1px solid currentColor; border-radius:8px; font-size:2rem; text-align:center; width:80%; max-width:400px; }
+    #subjects { display:flex; flex-direction:column; gap:1rem; width:90%; max-width:400px; margin-top:20px; }
+    .subject { display:flex; justify-content:space-between; align-items:center; padding:1rem; border:1px solid currentColor; border-radius:8px; }
+    .subject-name { color:#ffc107; font-size:1.25rem; font-weight:bold; }
+    .subject-time { font-size:1.5rem; margin-right:1rem; }
+    .controls { display:flex; gap:1rem; }
+    .controls .material-icons { font-size:1.8rem; cursor:pointer; }
+    .controls .play { color:#4caf50; }
+    .controls .edit { color:#2196f3; }
+    .controls .delete { color:#f44336; }
+    .button-container { margin:1rem 0; }
+    #add-subject { padding:.5rem 1rem; background:#ffc107; border:none; color:#000; border-radius:8px; cursor:pointer; }
+    #chart-container { width:80%; max-width:300px; margin:1rem 0 2rem; }
+    #historyPanel { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:none; justify-content:center; align-items:center; color:#fff; }
+    .history-content { background:#fff; color:#000; padding:1rem 2rem; border-radius:8px; max-height:80%; overflow-y:auto; width:90%; max-width:420px; }
+    .history-entry { margin-bottom:1rem; }
+    .small { font-size:0.9rem; color:inherit; opacity:0.85 }
+    .top-row { display:flex; justify-content:space-between; align-items:center; gap:1rem }
+    .export-btn { padding:.4rem .6rem; border-radius:6px; border:none; cursor:pointer }
+  </style>
+</head>
+<body class="light">
+  <header>
+    <button id="backBtn" onclick="location.href='home.html'">⬅</button>
+    <button id="toggleTheme" onclick="document.body.classList.toggle('dark')"><span class="material-icons">brightness_6</span></button>
+    <button id="historyBtn" onclick="openHistory()"><span class="material-icons">history</span></button>
+  </header>  <div id="totalTimer">00:00:00</div>
+  <div id="subjects"></div>  <div class="button-container">
+    <button id="add-subject">+ Subject</button>
+  </div>  <div id="chart-container"><canvas id="studyChart"></canvas></div>  <div id="historyPanel">
+    <div class="history-content">
+      <div class="top-row">
+        <h3 style="margin:0">Study History</h3>
+        <div>
+          <button class="export-btn" onclick="exportHistoryCSV()">Export CSV</button>
+          <button class="export-btn" onclick="clearHistory()">Clear</button>
+        </div>
+      </div>
+      <div id="historyList" style="margin-top:1rem"></div>
+      <button onclick="closeHistory()">Close</button>
+    </div>
+  </div>  <script>
+    // --- Persistent data ---
+    let subjects = JSON.parse(localStorage.getItem('subjects')) || ['Maths','Chemistry','Physics'];
+    let totalTime = JSON.parse(localStorage.getItem('totalTime')) || {};
+    let history = JSON.parse(localStorage.getItem('studyHistory')) || {};
+    let intervals = {}, active = null;
+    let chartNeedsUpdate = true;
+
+    // Ensure totalTime has all subject keys (and no missing keys)
+    function normalizeTotalTime(){
+      subjects.forEach(s=>{ if(typeof totalTime[s] !== 'number') totalTime[s]=0; });
+      // remove any keys not in subjects
+      Object.keys(totalTime).forEach(k=>{ if(!subjects.includes(k)) delete totalTime[k]; });
+    }
+
+    normalizeTotalTime();
+
+    // Helper: format seconds to HH:MM:SS
+    function fmt(s){
+      s = Math.max(0, Math.floor(s)||0);
+      const h=String(Math.floor(s/3600)).padStart(2,'0'),
+            m=String(Math.floor((s%3600)/60)).padStart(2,'0'),
+            sec=String(s%60).padStart(2,'0');
+      return `${h}:${m}:${sec}`;
+    }
+
+    // --- Rendering ---
+    function render(){
+      const c=document.getElementById('subjects'); c.innerHTML='';
+      subjects.forEach(sub=>{
+        const running=!!intervals[sub];
+        const d=document.createElement('div'); d.className='subject';
+        d.innerHTML=`
+          <div>
+            <div class="subject-name">${sub}</div>
+            <div class="small">${running? 'Running' : 'Paused'}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:1rem">
+            <div class="subject-time" id="time-${escapeId(sub)}">${fmt(totalTime[sub])}</div>
+            <div class="controls">
+              <span class="material-icons play" data-sub="${sub}">${running?'pause':'play_arrow'}</span>
+              <span class="material-icons edit" data-sub="${sub}">edit</span>
+              <span class="material-icons delete" data-sub="${sub}">delete</span>
+            </div>
+          </div>`;
+        c.append(d);
+      });
+      update();
+    }
+
+    // Utility to make safe id
+    function escapeId(str){ return str.replace(/[^a-z0-9_-]/gi,'_'); }
+
+    document.getElementById('subjects').addEventListener('click',e=>{
+      const cls=e.target.classList;
+      const sub=e.target.dataset.sub;
+      if(!sub) return;
+      if(cls.contains('play')) toggle(sub);
+      if(cls.contains('edit')) editSubject(sub);
+      if(cls.contains('delete')) remove(sub);
+    });
+
+    // Start/stop timer for a subject. Only one active at a time.
+    function toggle(sub){
+      if(intervals[sub]){
+        clearInterval(intervals[sub]); delete intervals[sub];
+        if(active===sub) active=null;
+      } else {
+        // stop any active
+        if(active && intervals[active]){ clearInterval(intervals[active]); delete intervals[active]; }
+        active = sub;
+        intervals[sub] = setInterval(()=>{ totalTime[sub]++; save(false); fastUpdate(sub); }, 1000);
+      }
+      render();
+    }
+
+    // Quick update of a single subject time in the DOM (avoid full rerender every second)
+    function fastUpdate(sub){
+      const el = document.getElementById(`time-${escapeId(sub)}`);
+      if(el) el.textContent = fmt(totalTime[sub]);
+      document.getElementById('totalTimer').textContent = fmt(subjects.reduce((a,s)=>a+totalTime[s],0));
+      chartNeedsUpdate = true;
+    }
+
+    function editSubject(sub){
+      // Provide options: rename or add minutes
+      const choice = prompt(`Type 'rename' to rename subject or 'minutes' to add minutes to ${sub}:`).trim();
+      if(!choice) return;
+      if(choice.toLowerCase() === 'rename'){
+        const n = prompt('New name:', sub);
+        if(n && !subjects.includes(n)){
+          // rename in arrays/objects
+          subjects = subjects.map(s=>s===sub?n:s);
+          totalTime[n] = totalTime[sub] || 0; delete totalTime[sub];
+          // rename active
+          if(active === sub) active = n;
+          save(); render();
+        } else alert('Invalid or duplicate name.');
+      } else if(choice.toLowerCase() === 'minutes'){
+        manual(sub);
+      } else alert('Unknown option. Use rename or minutes.');
+    }
+
+    function manual(sub){
+      const m = parseInt(prompt(`Add minutes to ${sub}: (positive integer)`),10);
+      if(Number.isInteger(m) && m>0){ totalTime[sub] += m*60; save(); fastUpdate(sub); }
+      else alert('Please enter a valid positive integer');
+    }
+
+    function remove(sub){
+      if(confirm(`Delete ${sub}?`)){
+        if(intervals[sub]){ clearInterval(intervals[sub]); delete intervals[sub]; }
+        if(active===sub) active=null;
+        subjects = subjects.filter(s=>s!==sub);
+        delete totalTime[sub];
+        save(); render();
+      }
+    }
+
+    // --- Update loop & chart throttle ---
+    function update(){
+      // update totals in DOM
+      document.getElementById('totalTimer').textContent = fmt(subjects.reduce((a,s)=>a+totalTime[s],0));
+      subjects.forEach(s=>{
+        const el = document.getElementById(`time-${escapeId(s)}`);
+        if(el) el.textContent = fmt(totalTime[s]);
+      });
+      chartNeedsUpdate = true;
+    }
+
+    function save(updateLastDate=true){
+      localStorage.setItem('subjects', JSON.stringify(subjects));
+      localStorage.setItem('totalTime', JSON.stringify(totalTime));
+      localStorage.setItem('studyHistory', JSON.stringify(history));
+      if(updateLastDate){
+        localStorage.setItem('lastActiveDate', new Date().toISOString().slice(0,10));
+      }
+    }
+
+    // --- Chart setup ---
+    const ctx = document.getElementById('studyChart');
+    const chart = new Chart(ctx, {
+      type: 'pie',
+      data: { labels: subjects, datasets: [{ data: subjects.map(s=>totalTime[s]) }] },
+      options: { responsive:true, maintainAspectRatio:true }
+    });
+
+    // Periodically update chart if flagged (throttle)
+    setInterval(()=>{
+      if(!chartNeedsUpdate) return;
+      chart.data.labels = subjects.slice();
+      chart.data.datasets[0].data = subjects.map(s=>totalTime[s]);
+      chart.update();
+      chartNeedsUpdate = false;
+    }, 2000);
+
+    // --- History handling ---
+    function saveHistoryForDate(dateStr){
+      // deep clone totalTime so later resets don't affect history
+      history[dateStr] = JSON.parse(JSON.stringify(totalTime));
+      localStorage.setItem('studyHistory', JSON.stringify(history));
+    }
+
+    function openHistory(){
+      const hl=document.getElementById('historyList'); hl.innerHTML='';
+      // show sorted by date desc
+      Object.keys(history).sort((a,b)=>b.localeCompare(a)).forEach(d=>{
+        const dat = history[d];
+        const e=document.createElement('div'); e.className='history-entry';
+        e.innerHTML=`<strong>${d}</strong>: ` + subjects.map(s=>`${s} ${fmt(dat[s]||0)}`).join(', ');
+        hl.append(e);
+      });
+      document.getElementById('historyPanel').style.display='flex';
+    }
+    function closeHistory(){ document.getElementById('historyPanel').style.display='none'; }
+
+    function exportHistoryCSV(){
+      // compile CSV with date and each subject column
+      const dates = Object.keys(history).sort();
+      if(dates.length===0) return alert('No history to export');
+      const header = ['date', ...subjects];
+      const rows = [header.join(',')];
+      dates.forEach(d=>{
+        const row = [d, ...subjects.map(s=>history[d][s]||0)];
+        rows.push(row.join(','));
+      });
+      const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a=document.createElement('a'); a.href=url; a.download='study-history.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    function clearHistory(){ if(confirm('Clear all history?')){ history = {}; localStorage.removeItem('studyHistory'); openHistory(); } }
+
+    // --- Midnight reset logic ---
+    function scheduleMidnightReset(){
+      const now = new Date();
+      const next = new Date(now.getFullYear(), now.getMonth(), now.getDate()+1);
+      const ms = next - now;
+      setTimeout(()=>{
+        // save today's totals under today's date
+        const today = new Date(); const todayStr = today.toISOString().slice(0,10);
+        saveHistoryForDate(todayStr);
+        // clear intervals
+        Object.keys(intervals).forEach(k=>{ clearInterval(intervals[k]); }); intervals = {}; active = null;
+        // reset totals
+        subjects.forEach(s=> totalTime[s] = 0);
+        save(); render();
+        // schedule next reset
+        scheduleMidnightReset();
+      }, ms + 50); // small buffer
+    }
+
+    // On load: if stored lastActiveDate differs from today, push previous totals to history and reset
+    function dailyCheckOnLoad(){
+      const todayStr = new Date().toISOString().slice(0,10);
+      const lastDate = localStorage.getItem('lastActiveDate');
+      if(lastDate && lastDate !== todayStr){
+        // Save totals under lastDate (they represent the totals for that day) but protect with deep clone
+        try{ history[lastDate] = JSON.parse(JSON.stringify(totalTime)); localStorage.setItem('studyHistory', JSON.stringify(history)); }catch(e){/*ignore*/}
+        // reset totals for new day
+        subjects.forEach(s=> totalTime[s] = 0);
+        // clear any intervals that might be lingering
+        Object.keys(intervals).forEach(k=>{ clearInterval(intervals[k]); }); intervals = {}; active = null;
+        save();
+      }
+      // ensure lastActiveDate is set to today now
+      localStorage.setItem('lastActiveDate', todayStr);
+    }
+
+    // Initialize
+    dailyCheckOnLoad();
+    scheduleMidnightReset();
+    render();
+
+    // Protect against accidental zoom/refresh
+    document.addEventListener('keydown',e=>{ if((e.ctrlKey||e.metaKey)&&['+','-','=','r','R'].includes(e.key)) e.preventDefault(); });
+    document.addEventListener('wheel',e=>{ if(e.ctrlKey) e.preventDefault(); },{passive:false});
+
+    // Add subject with validation and higher limit
+    document.getElementById('add-subject').onclick = ()=>{
+      if(subjects.length >= 12) return alert('Max 12 subjects');
+      const n = prompt('Subject name:');
+      if(!n) return;
+      if(subjects.includes(n)) return alert('Subject already exists');
+      subjects.push(n); totalTime[n] = 0; save(); render();
+    };
+
+  </script></body>
+</html>
