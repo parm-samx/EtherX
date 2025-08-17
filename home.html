@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>EtherX</title>
+  <style>
+    :root {
+      --bg-light: #f9f9f9;
+      --text-light: #000;
+      --bg-dark: #121212;
+      --text-dark: #fff;
+      --accent: #3498db;
+      --card-light: #fff;
+      --card-dark: #1e1e1e;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-light);
+      transition: background .3s, color .3s;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--text-dark);
+    }
+    header {
+      display: flex; justify-content: flex-end; align-items: center;
+      padding: 1rem;
+    }
+    header button {
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1.2rem;
+      border-radius: 50%;
+      cursor: pointer;
+      width: 2.5rem; height: 2.5rem;
+      margin-left: .5rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .2s;
+    }
+    header button:hover { transform: scale(1.1); }
+
+    #menu {
+      position: absolute; top: 4rem; right: 1rem;
+      background: var(--card-light);
+      border-radius: 8px;
+      display: none; flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
+      padding: .5rem 1rem;
+      z-index: 100;
+    }
+    body.dark #menu { background: var(--card-dark); }
+    #menu a {
+      text-decoration: none; color: inherit;
+      padding: .4rem 0; display: flex; align-items: center;
+      font-size: .95rem; transition: color .2s;
+    }
+    #menu a:hover { color: var(--accent); }
+    #menu a span { margin-right: .5rem; }
+
+    .container {
+      text-align: center;
+      margin-top: 3rem;
+      flex: 1;
+    }
+    .title {
+      font-size: 3rem; margin-bottom: .5rem;
+    }
+    .title span { color: var(--accent); }
+    .tagline {
+      font-size: 1.1rem;
+      margin-bottom: 2rem;
+      opacity: .8;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    .grid button {
+      padding: 1.2rem;
+      font-size: 1rem;
+      background: var(--card-light);
+      color: inherit;
+      border: none; border-radius: 12px;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, background .3s;
+      box-shadow: 0 2px 5px rgba(0,0,0,.1);
+    }
+    body.dark .grid button { background: var(--card-dark); }
+    .grid button:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 15px rgba(0,0,0,.2);
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem 0;
+      font-size: .9rem;
+      border-top: 1px solid rgba(0,0,0,.1);
+    }
+    body.dark footer { border-color: rgba(255,255,255,.1); }
+  </style>
+</head>
+<body>
+  <header>
+    <button id="toggle">🌓</button>
+    <button id="menuBtn">⋮</button>
+    <nav id="menu">
+      <a href="#" onclick="location.reload(true)">
+        <span>🔄</span> Refresh
+      </a>
+      <a href="settings.html"><span>⚙️</span> Settings</a>
+      <a href="help.html"><span>❓</span> Help</a>
+      <a href="about.html"><span>ℹ️</span> About SamX</a>
+      <a href="privacy.html"><span>🔒</span> Privacy Policy</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h1 class="title">Ether<span>X</span></h1>
+    <p class="tagline">Your all-in-one study & productivity hub 📚⚡</p>
+
+    <div class="grid">
+      <button onclick="location.href='tracker.html'">⏳ Study Tracker</button>
+      <button onclick="location.href='todo.html'">🎯 To-Do List</button>
+      <button onclick="location.href='calculator.html'">➗ Calculator</button>
+      <button onclick="location.href='calendar.html'">🗓️ Calendar</button>
+      <button onclick="window.open('https://ncert.nic.in/textbook.php', '_blank')">📘 NCERT</button>
+      <button onclick="location.href='game.html'">🎮 Game</button>
+    </div>
+  </div>
+
+  <footer>
+    Made with 💙 by <strong>PARMESHWAR</strong> at SamX
+  </footer>
+
+  <script>
+    const toggleBtn = document.getElementById('toggle');
+    const menuBtn = document.getElementById('menuBtn');
+    const menu = document.getElementById('menu');
+
+    // Load saved theme
+    if(localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark");
+    }
+
+    toggleBtn.onclick = () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("theme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+      );
+    };
+
+    menuBtn.onclick = () => {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    };
+    window.addEventListener("click", e => {
+      if (!menu.contains(e.target) && e.target !== menuBtn) {
+        menu.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
