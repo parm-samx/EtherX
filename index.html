@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>EtherX</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#007bff">
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #ffffff;
+        overflow: hidden;
+        height: 100vh;
+        position: relative;
+    }
+
+    /* EtherX logo */
+    .logo {
+        font-size: 4rem;
+        font-weight: bold;
+        animation: zoom 2s infinite alternate;
+        position: absolute;
+        left: 5%;
+        top: 35%; /* reduced spacing */
+    }
+    .logo span { color: blue; }
+    @keyframes zoom { 0% { transform: scale(1); } 100% { transform: scale(1.1); } }
+
+    /* Slogan */
+    .slogan {
+        position: absolute;
+        left: 5%;
+        top: 48%; /* closer to logo */
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    /* Start button */
+    .start-btn {
+        position: absolute;
+        left: 5%;
+        top: 58%; /* closer to slogan */
+        padding: 15px 40px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        transition: transform 0.2s;
+    }
+    .start-btn:hover { transform: scale(1.05); }
+
+    /* Notification logo */
+    .notification-logo {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background-color: #f1c40f;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 2rem;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Notification bar */
+    .notification-bar {
+        position: absolute;
+        top: 90px;
+        right: 20px;
+        width: 250px;
+        padding: 15px;
+        background-color: #f1f1f1;
+        border: 2px solid #ccc;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        display: none;
+        font-size: 1rem;
+    }
+
+    /* Refresh button */
+    .refresh-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        padding: 10px 20px;
+        background-color: #28a745;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    /* PWA install button */
+    .pwa-btn {
+        position: absolute;
+        top: 70px; /* below refresh button */
+        left: 20px;
+        padding: 10px 20px;
+        background-color: #ff5733;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: block; /* visible by default */
+    }
+
+    /* Open Book Animation */
+    .open-book {
+        position: absolute;
+        top: -200px; 
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 8rem; /* smaller size */
+        animation: dropBook 3s forwards;
+    }
+
+    @keyframes dropBook {
+        0% { top: -200px; transform: translateX(-50%) rotate(0deg); opacity: 0; }
+        40% { top: 150px; transform: translateX(-50%) rotate(20deg); opacity: 1; }
+        60% { top: 240px; transform: translateX(-50%) rotate(-10deg); }
+        80% { top: 240px; left: 28%; transform: rotate(0deg); } /* beside EtherX */
+        100% { top: 240px; left: 28%; transform: rotate(0deg); }
+    }
+</style>
+</head>
+<body>
+
+<!-- Refresh Button -->
+<button class="refresh-btn" onclick="location.reload()">Refresh</button>
+
+<!-- PWA Install Button -->
+<button class="pwa-btn" id="pwaInstallBtn">Install ⬇️</button>
+
+<!-- Notification logo -->
+<div class="notification-logo" onclick="toggleNotification()">🔔</div>
+
+<!-- Notification bar -->
+<div class="notification-bar" id="notificationBar">
+    Hello, how are you.
+</div>
+
+<!-- EtherX Logo -->
+<div class="logo">Ether<span>X</span></div>
+
+<!-- Slogan -->
+<div class="slogan">Learn, Play, Explore</div>
+
+<!-- Start Button -->
+<button class="start-btn" onclick="startApp()">Start</button>
+
+<!-- Open Book Emoji -->
+<div class="open-book">📖</div>
+
+<script>
+    function startApp() { window.location.href = "home.html"; }
+
+    // Disable zoom
+    document.addEventListener('wheel', function(e){ if(e.ctrlKey) e.preventDefault(); }, {passive:false});
+    document.addEventListener('keydown', function(e){ if(e.ctrlKey && (e.key==='+'||e.key==='-'||e.key==='=')) e.preventDefault(); });
+
+    // Notification toggle
+    function toggleNotification(){
+        const bar = document.getElementById('notificationBar');
+        bar.style.display = (bar.style.display==='block') ? 'none' : 'block';
+    }
+
+    // Restore original PWA install functionality
+    let deferredPrompt;
+    const pwaBtn = document.getElementById('pwaInstallBtn');
+    window.addEventListener('beforeinstallprompt', (e)=>{
+        e.preventDefault();
+        deferredPrompt = e;
+    });
+
+    pwaBtn.addEventListener('click', async ()=>{
+        if(deferredPrompt){
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+        }
+    });
+</script>
+
+</body>
+</html>
