@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>EtherX — Index</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html,body { height: 100%; overflow: hidden; touch-action: none; }
+    body {
+      background: #f9fbff;
+      color: #111827;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }.notifications {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.notif-btn { position: relative; background: transparent; border: none; cursor: pointer; padding: 8px; border-radius: 8px; }
+.notif-badge { position: absolute; top: 6px; right: 6px; background: #ef4444; color: white; font-size: 11px; padding: 2px 6px; border-radius: 999px; line-height: 1; }
+.notif-panel { min-width: 260px; max-width: 320px; background: white; box-shadow: 0 8px 24px rgba(16,24,40,0.08); border-radius: 12px; padding: 12px; display: none; flex-direction: column; gap: 8px; }
+.notif-panel.show { display: flex; }
+.notif-item { font-size: 14px; color: #0f172a; }
+.notif-panel .close { align-self: flex-end; background: none; border: none; cursor: pointer; }
+
+.center-wrap { height: 100vh; width: 100%; display: flex; align-items: center; justify-content: center; padding: 32px; }
+.hero { display: flex; align-items: center; gap: 28px; position: relative; }
+.logo-area { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.logo { font-size: 44px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a; animation: logoPulse 3200ms ease-in-out infinite; transform-origin: center; }
+.logo .blueX { color: #2563eb; }
+@keyframes logoPulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+.slogan { font-size: 15px; color: #334155; opacity: 0.95; }
+.book-area { width: 160px; height: 160px; position: relative; display: flex; align-items: center; justify-content: center; }
+.book { position: absolute; width: 140px; height: auto; transition: transform 550ms cubic-bezier(.2,.9,.2,1), opacity 430ms ease; will-change: transform, opacity; user-select: none; -webkit-user-drag: none; }
+.book.closed { opacity: 1; z-index: 30; animation: drop 1000ms cubic-bezier(.22,.9,.22,1) forwards; }
+@keyframes drop { 0% { transform: translateY(-260px) rotate(-18deg) scale(.9); } 60% { transform: translateY(18px) rotate(6deg) scale(1.02); } 100% { transform: translateY(0) rotate(0) scale(1); } }
+.book.open { opacity: 0; transform: translateX(-24px) translateY(6px) scale(.98); z-index: 20; }
+.book.open.active { opacity: 1; transform: translateX(0) translateY(0) scale(1); z-index: 35; }
+.book.removed { opacity: 0; pointer-events: none; display: none; }
+.controls { margin-top: 28px; display: flex; gap: 12px; align-items: center; }
+.start-btn { background: linear-gradient(180deg,#2563eb,#1d4ed8); color: white; border: none; padding: 12px 22px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; box-shadow: 0 6px 18px rgba(13, 42, 148, 0.12); }
+.start-btn:active { transform: translateY(1px); }
+.secondary { background: transparent; border: none; color: #334155; cursor: pointer; font-size: 14px; }
+@media (max-width:640px) { .hero { gap: 14px; } .logo { font-size: 34px; } .book-area { width: 120px; height: 120px; } .book { width: 110px; } .controls { flex-direction: column; gap: 10px; } }
+
+  </style>
+</head>
+<body>  <div class="notifications">
+    <button aria-label="Notifications" id="notifBtn" class="notif-btn">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 17H9" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4"/>
+        <path d="M12 4c-3 0-4 1.5-4 4v3.5l-.9 2.2A1 1 0 0 0 8 16h8a1 1 0 0 0 .9-1.3L16 11.5V8c0-2.5-1-4-4-4z" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <span class="notif-badge" id="notifBadge">1</span>
+    </button>
+    <div id="notifPanel" class="notif-panel" role="dialog" aria-label="Notifications panel">
+      <button class="close" id="notifClose" aria-label="Close notifications">✕</button>
+      <div class="notif-item">Welcome back — your study session is ready.</div>
+      <div class="notif-item">Tip: Click the book to open study materials.</div>
+    </div>
+  </div>  <main class="center-wrap" role="main">
+    <section class="hero" aria-labelledby="brand">
+      <div class="logo-area" id="brand">
+        <div class="logo">Ether<span class="blueX">X</span></div>
+        <div class="slogan">Learn faster. Remember longer.</div>
+        <div class="controls">
+          <button id="startBtn" class="start-btn" type="button">Start</button>
+          <button id="openNotifFromHero" class="secondary" type="button">Show notifications</button>
+        </div>
+      </div>
+      <div class="book-area" aria-hidden="true">
+        <img id="closedBook" class="book closed" src="closed-book.png" alt="Closed book" draggable="false">
+        <img id="openBook" class="book open" src="open-book.png" alt="Open book" draggable="false">
+      </div>
+    </section>
+  </main>  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const closed = document.getElementById('closedBook');
+      const open = document.getElementById('openBook');
+      const startBtn = document.getElementById('startBtn');
+      const notifBtn = document.getElementById('notifBtn');
+      const notifPanel = document.getElementById('notifPanel');
+      const notifClose = document.getElementById('notifClose');
+      const notifBadge = document.getElementById('notifBadge');
+      const openNotifFromHero = document.getElementById('openNotifFromHero');
+
+      closed.addEventListener('animationend', () => {
+        closed.classList.add('removed');
+        setTimeout(() => open.classList.add('active'), 200);
+      }, { once: true });
+
+      open.addEventListener('click', () => {
+        open.animate([
+          { transform: 'translateY(0) scale(1)' },
+          { transform: 'translateY(-8px) scale(1.02)' },
+          { transform: 'translateY(0) scale(1)' }
+        ], { duration: 420, easing: 'ease-out' });
+        navigateToHome();
+      });
+
+      startBtn.addEventListener('click', navigateToHome);
+      function navigateToHome() { window.location.href = 'home.html'; }
+
+      notifBtn.addEventListener('click', (e) => { e.stopPropagation(); notifPanel.classList.toggle('show'); notifBadge.style.display = 'none'; });
+      notifClose.addEventListener('click', (e) => { e.stopPropagation(); notifPanel.classList.remove('show'); });
+      openNotifFromHero.addEventListener('click', () => { notifPanel.classList.add('show'); notifBadge.style.display = 'none'; });
+      document.addEventListener('click', (ev) => { if (!notifPanel.contains(ev.target) && !notifBtn.contains(ev.target)) notifPanel.classList.remove('show'); });
+      document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') notifPanel.classList.remove('show'); });
+      document.addEventListener('touchmove', function(e){e.preventDefault();}, { passive: false });
+    });
+  </script></body>
+</html>
